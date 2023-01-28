@@ -3,8 +3,7 @@ import os
 import pygame
 
 
-def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+def load_image(fullname, colorkey=None):
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
@@ -18,3 +17,8 @@ def load_image(name, colorkey=None):
     else:
         image = image.convert_alpha()
     return image
+
+
+def terminate():
+    pygame.quit()
+    sys.exit()
