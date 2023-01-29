@@ -1,5 +1,7 @@
 import pygame
 
+from intention import Intent
+
 
 class Screen(pygame.Surface):
     def __init__(self, screen, background):
@@ -7,6 +9,7 @@ class Screen(pygame.Surface):
         self.parent_screen = screen
         self.background = background
         self.elements = list()
+        self.intent = None
 
     def draw(self, tick):
         self.fill((0, 0, 0))
@@ -21,3 +24,6 @@ class Screen(pygame.Surface):
 
     def add_element(self, element):
         self.elements.append(element)
+
+    def set_intent(self, intent: Intent):
+        self.intent = intent
