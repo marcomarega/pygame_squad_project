@@ -4,30 +4,20 @@ from UserInterfafce.screen import Screen
 
 
 class Button(pygame.Surface):
-    def __init__(self, parent_screen: Screen, button_size, coordinates, color,
-                 text="", font_color=(0, 0, 0), font_size=20):
-        super(Button, self).__init__(button_size)
+    def __init__(self, parent_screen: Screen, rect: pygame.Rect, text="", extra_style=None):
+        super(Button, self).__init__(rect.size)
         self.parent_screen = parent_screen
+        self.extra_style = extra_style
 
-        self.x_coordinate, self.y_coordinate = coordinates
-        self.color = color
+        self.rect = rect
         self.text = text
-        self.font_color = font_color
-        self.font_size = font_size
         self.showing = True
 
         self.functions = list()
 
-        self.fill(self.color)
-        font = pygame.font.Font(None, self.font_size)
-        text = font.render(self.text, True, self.font_color)
-        self.blit(text, ((self.get_width() - text.get_width()) // 2, (self.get_height() - text.get_height()) // 2))
-        if not self.showing:
-            return
-
     def move(self, x, y):
-        self.x_coordinate = x
-        self.y_coordinate = y
+        self.rect.x = x
+        self.rect.y = y
         return self
 
     def show(self):
@@ -39,8 +29,18 @@ class Button(pygame.Surface):
         return self
 
     def draw(self, tick):
+        if not self.showing:
+            return self
+        if self.extra_style is not None:
+            style = self.extra_style
+        else:
+            style = self.parent_screen.theme["button"]
+        self.fill(style.background_color)
+        font = pygame.font.Font(None, style.font_size)
+        text = font.render(self.text, True, style.main_color)
+        self.blit(text, ((self.get_width() - text.get_width()) // 2, (self.get_height() - text.get_height()) // 2))
         if self.showing:
-            self.parent_screen.blit(self, (self.x_coordinate, self.y_coordinate))
+            self.parent_screen.blit(self, (self.rect.x, self.rect.y))
         return self
 
     def connect(self, function):
@@ -48,7 +48,7 @@ class Button(pygame.Surface):
         return self
 
     def click(self, pos):
-        if pygame.Rect(self.x_coordinate, self.y_coordinate, self.get_width(), self.get_height()).collidepoint(*pos):
+        if self.rect.collidepoint(*pos):
             for func in self.functions:
                 func()
         return self

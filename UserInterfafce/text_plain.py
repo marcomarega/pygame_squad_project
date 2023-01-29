@@ -5,27 +5,18 @@ from UserInterfafce.screen import Screen
 
 
 class Text(Surface):
-    def __init__(self, parent_screen: Screen, plain_size, coordinates, color,
-                 text, font_size=20, background_color=None):
-        super(Text, self).__init__(plain_size)
+    def __init__(self, parent_screen: Screen, rect: pygame.Rect, text, extra_style=None):
+        super(Text, self).__init__(rect.size)
         self.parent_screen = parent_screen
+        self.extra_style = extra_style
 
-        self.x_coordinate, self.y_coordinate = coordinates
-        self.background_color = background_color
+        self.rect = rect
         self.text = text
-        self.color = color
-        self.font_size = font_size
         self.showing = True
 
-        if background_color is not None:
-            return
-        font = pygame.font.Font(None, self.font_size)
-        text = font.render(self.text, True, self.color)
-        self.blit(text, ((self.get_width() - text.get_width()) // 2, (self.get_height() - text.get_height()) // 2))
-
     def move(self, x, y):
-        self.x_coordinate = x
-        self.y_coordinate = y
+        self.rect.x = x
+        self.rect.y = y
         return self
 
     def show(self):
@@ -37,15 +28,24 @@ class Text(Surface):
         return self
 
     def draw(self, tick):
-        if self.showing:
-            if self.background_color is not None:
-                self.parent_screen.blit(self, (self.x_coordinate, self.y_coordinate))
-            else:
-                font = pygame.font.Font(None, self.font_size)
-                text = font.render(self.text, True, self.color)
-                self.parent_screen.blit(text,
-                                        ((self.get_width() - text.get_width()) // 2,
-                                         (self.get_height() - text.get_height()) // 2))
+        if not self.showing:
+            return
+        if self.extra_style is not None:
+            style = self.extra_style
+        else:
+            style = self.parent_screen.theme["text"]
+        font = pygame.font.Font(None, style.font_size)
+        text = font.render(self.text, True, style.main_color)
+        if style.background_color is not None:
+            self.fill(style.background_color)
+            self.blit(text,
+                      ((self.get_width() - text.get_width()) // 2,
+                       (self.get_height() - text.get_height()) // 2))
+            self.parent_screen.blit(self, self.rect.topleft)
+        else:
+            self.parent_screen.blit(text,
+                                    ((self.get_width() - text.get_width()) // 2,
+                                     (self.get_height() - text.get_height()) // 2))
         return self
 
     def click(self, pos):

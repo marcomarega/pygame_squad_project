@@ -10,7 +10,7 @@ class Intent:
         self.has_intention = True
 
     def get_screen(self, screen):
-        screen = self.to_screen(screen, self, self.args)
+        screen = self.to_screen(screen, self, *self.args)
         self.to_screen = None
         self.args = None
         self.has_intention = False
