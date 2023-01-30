@@ -2,7 +2,7 @@ import pygame
 import sys
 import os
 
-from UserInterfafce.button import Button
+from UserInterfafce.screen_elements import Button
 from functions import load_image
 
 pygame.init()

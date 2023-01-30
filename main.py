@@ -8,17 +8,14 @@ if __name__ == "__main__":
     cur_screen = MainMenuScreen(display, intent, day_theme)
 
     running = True
-    pressed_coordinate = None
     while running:
         if intent.has_intention:
             cur_screen = intent.get_screen(display)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pressed_coordinate = event.pos
-            if event.type == pygame.MOUSEBUTTONUP and pressed_coordinate is not None:
-                cur_screen.click(pressed_coordinate)
+            else:
+                cur_screen.push_event(event)
         display.fill((0, 0, 0))
         cur_screen.draw(clock.tick(FPS))
         pygame.display.flip()

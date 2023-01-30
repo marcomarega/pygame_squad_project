@@ -4,9 +4,9 @@ from UserInterfafce.intention import Intent
 
 
 class Screen(pygame.Surface):
-    def __init__(self, screen, theme):
-        super(Screen, self).__init__(screen.get_size())
-        self.parent_screen = screen
+    def __init__(self, display, theme):
+        super(Screen, self).__init__(display.get_size())
+        self.display = display
         self.theme = theme
         self.elements = list()
         self.intent = None
@@ -15,11 +15,11 @@ class Screen(pygame.Surface):
         self.blit(self.theme["background"], (0, 0))
         for element in self.elements:
             element.draw(tick)
-        self.parent_screen.blit(self, (0, 0))
+        self.display.blit(self, (0, 0))
 
-    def click(self, pos):
+    def push_event(self, event):
         for element in self.elements:
-            element.click(pos)
+            element.push_event(event)
 
     def add_element(self, element):
         self.elements.append(element)
