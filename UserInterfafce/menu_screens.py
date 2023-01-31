@@ -23,6 +23,8 @@ class MainMenuScreen(Screen):
                          .connect((lambda: self.intent.set_intent(SettingsScreen, self.theme))))
         self.add_element(Button(self, Rect(10, 250, 150, 50), "Выйти из игры")
                          .connect(lambda: terminate()))
+        self.add_element(Button(self, Rect(10, 310, 150, 50), "Test")
+                         .connect(lambda: self.intent.set_intent(PauseMenuScreen, self.theme)))
 
 
 class SettingsScreen(Screen):
@@ -45,3 +47,17 @@ class SettingsScreen(Screen):
             Button(self, Rect(10, 130, 150, 50), "Назад")
             .connect(lambda: self.intent.set_intent(MainMenuScreen, self.theme))
         )
+
+
+class PauseMenuScreen(Screen):
+    def __init__(self, screen, intent, theme, *args):
+        super(PauseMenuScreen, self).__init__(screen, theme)
+        self.intent = intent
+        self.args = args
+
+        self.add_element(Button(self, Rect((self.display.get_width() - 200)//2, 215, 200, 50), "Сохранить и выйти")
+                         .connect(lambda: self.intent.set_intent(MainMenuScreen, self.theme)))
+        self.add_element(Button(self, Rect((self.display.get_width() - 200)//2, 275, 200, 50), "Перейти в меню настроек")
+                         .connect(lambda: self.intent.set_intent(SettingsScreen, self.theme)))
+        self.add_element(Button(self, Rect((self.display.get_width() - 200)//2, 335, 200, 50), "Продолжить")
+                         .connect(lambda: print(9)))
