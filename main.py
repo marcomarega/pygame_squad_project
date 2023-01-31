@@ -1,6 +1,6 @@
 from load import *
 from UserInterfafce.intention import Intent
-from menu_screens import MainMenuScreen
+from UserInterfafce.menu_screens import MainMenuScreen
 
 if __name__ == "__main__":
     intent = Intent()
