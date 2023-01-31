@@ -2,6 +2,8 @@ import sys
 import os
 import pygame
 
+from load import WIDTH
+
 
 def load_image(fullname, colorkey=None):
     # если файл не существует, то выходим
@@ -17,6 +19,14 @@ def load_image(fullname, colorkey=None):
     else:
         image = image.convert_alpha()
     return image
+
+
+def hor_center(screen_width, element_width):
+    return (screen_width - element_width) // 2
+
+
+def ver_center(screen_height, element_height):
+    return (screen_height - element_height) // 2
 
 
 def terminate():
