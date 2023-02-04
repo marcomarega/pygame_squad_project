@@ -6,7 +6,7 @@ from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea
 from UserInterfafce.screen import Screen
 from UserInterfafce.style import Style
 from filework import FileBase, Save
-from functions import terminate
+from functions import terminate, hor_center
 from load import GAME_NAME
 from themes import night_theme, day_theme
 
@@ -21,7 +21,8 @@ class MainMenuScreen(Screen):
         self.add_element(Button(self, Rect(10, 130, 150, 50), "Продолжить игру")
                          .connect(lambda: self.intent.set_intent(ChoiceSaveScreen, self.file_base, self.theme)))
         self.add_element(Button(self, Rect(10, 190, 150, 50), "Настройки")
-                         .connect((lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme))))
+                         .connect((lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
+                                                                  MainMenuScreen))))
         self.add_element(Button(self, Rect(10, 250, 150, 50), "Выйти из игры")
                          .connect(lambda: terminate()))
         self.add_element(Button(self, Rect(10, 310, 150, 50), "Test")
@@ -56,8 +57,9 @@ class ChoiceSaveScreen(Screen):
 
 
 class SettingsScreen(Screen):
-    def __init__(self, display, intent, file_base, theme, *args):
+    def __init__(self, display, intent, file_base, theme, from_screen):
         super(SettingsScreen, self).__init__(display, intent, file_base, theme)
+        self.from_screen = from_screen
 
         self.add_element(TextPlain(self, Rect(10, 10, 150, 50), "Параметры"))
         self.add_element(
@@ -72,7 +74,7 @@ class SettingsScreen(Screen):
         )
         self.add_element(
             Button(self, Rect(10, 130, 150, 50), "Назад")
-            .connect(lambda: self.intent.set_intent(MainMenuScreen, self.file_base, self.theme))
+            .connect(lambda: self.intent.set_intent(self.from_screen, self.file_base, self.theme))
         )
 
 
@@ -83,12 +85,13 @@ class GameScreen(Screen):
 
 
 class PauseMenuScreen(Screen):
-    def __init__(self, screen, intent, file_base, theme, *args):
+    def __init__(self, screen, intent, file_base, theme):
         super(PauseMenuScreen, self).__init__(screen, intent, file_base, theme)
 
-        self.add_element(Button(self, Rect((self.display.get_width() - 200)//2, 215, 200, 50), "Сохранить и выйти")
+        self.add_element(Button(self, Rect(hor_center(screen.get_width(), 200), 215, 200, 50), "Сохранить и выйти")
                          .connect(lambda: self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)))
-        self.add_element(Button(self, Rect((self.display.get_width() - 200)//2, 275, 200, 50), "Перейти в меню настроек")
-                         .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme)))
-        self.add_element(Button(self, Rect((self.display.get_width() - 200)//2, 335, 200, 50), "Продолжить")
-                         .connect(lambda: print(9)))
+        self.add_element(Button(self, Rect(hor_center(screen.get_width(), 200), 275, 200, 50), "Перейти в меню настроек")
+                         .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
+                                                                 PauseMenuScreen)))
+        self.add_element(Button(self, Rect(hor_center(screen.get_width(), 200), 335, 200, 50), "Продолжить")
+                         .connect(lambda: print(1)))
