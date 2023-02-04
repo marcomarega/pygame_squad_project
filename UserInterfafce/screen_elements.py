@@ -1,6 +1,7 @@
 import pygame
 
 from UserInterfafce.screen import Screen
+from load import SCROLL_SHIFT
 
 
 class ScreenElement(pygame.Surface):
@@ -11,9 +12,9 @@ class ScreenElement(pygame.Surface):
         self.rect = rect
         self.showing = True
 
-    def move(self, x, y):
-        self.rect.x = x
-        self.rect.y = y
+    def move(self, dx, dy):
+        self.rect.x += dx
+        self.rect.y += dy
         return self
 
     def show(self):
@@ -37,17 +38,18 @@ class Button(ScreenElement):
 
         self.text = text
         self.is_pressed = False
+        self.args = list()
         self.functions = list()
 
     def push_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_LEFT:
             if self.rect.collidepoint(*event.pos):
                 self.is_pressed = True
 
-        if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONUP and event.button == pygame.BUTTON_LEFT:
             if self.is_pressed and self.rect.collidepoint(*event.pos):
                 for func in self.functions:
-                    func()
+                    func(*self.args)
             self.is_pressed = False
             return self
 
@@ -70,6 +72,10 @@ class Button(ScreenElement):
         self.blit(text, ((self.get_width() - text.get_width()) // 2, (self.get_height() - text.get_height()) // 2))
         if self.showing:
             self.parent_screen.blit(self, (self.rect.x, self.rect.y))
+        return self
+
+    def add_args(self, *args):
+        self.args.extend(args)
         return self
 
     def connect(self, function):
@@ -99,6 +105,41 @@ class TextPlain(ScreenElement):
             self.parent_screen.blit(self, self.rect.topleft)
         else:
             self.parent_screen.blit(text,
-                                    ((self.get_width() - text.get_width()) // 2,
-                                     (self.get_height() - text.get_height()) // 2))
+                                    (self.rect.x + (self.get_width() - text.get_width()) // 2,
+                                     self.rect.y + (self.get_height() - text.get_height()) // 2))
         return self
+
+
+class ScrollArea(ScreenElement):
+    def __init__(self, parent_screen, rect, extra_theme=None):
+        super(ScrollArea, self).__init__(parent_screen, rect, None)
+        if extra_theme is None:
+            self.theme = self.parent_screen.theme
+        else:
+            self.theme = extra_theme
+        self.elements = list()
+        self.dy = 0
+
+    def add_element(self, element):
+        self.elements.append(element)
+
+    def push_event(self, event):
+        if event.type == pygame.MOUSEWHEEL and self.rect.collidepoint(*pygame.mouse.get_pos()):
+            self.dy += event.y * SCROLL_SHIFT
+            if self.dy > 0:
+                for element in self.elements:
+                    element.move(0, event.y * SCROLL_SHIFT - self.dy)
+                self.dy = 0
+            else:
+                for element in self.elements:
+                    element.move(0, event.y * SCROLL_SHIFT)
+        if hasattr(event, "pos"):
+            event.pos = (event.pos[0] - self.rect.x, event.pos[1] - self.rect.y)
+        for element in self.elements:
+            element.push_event(event)
+
+    def draw(self, tick):
+        self.blit(self.theme["scroll_area_background"], (0, 0))
+        for element in self.elements:
+            element.draw(tick)
+        self.parent_screen.blit(self, self.rect.topleft)

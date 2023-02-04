@@ -7,6 +7,9 @@ SIZE = WIDTH, HEIGHT = 800, 600
 display = pygame.display.set_mode(SIZE)
 from themes import *
 
+SCROLL_SHIFT = 25
+
 GAME_NAME = "BOXSCRAPPER"
 SAVES_COUNT = 3
+LEVEL_EXT = ".lvl"
 SAVE_EXT = ".save"

@@ -4,12 +4,13 @@ from UserInterfafce.intention import Intent
 
 
 class Screen(pygame.Surface):
-    def __init__(self, display, theme):
+    def __init__(self, display, intent, file_base, theme):
         super(Screen, self).__init__(display.get_size())
         self.display = display
+        self.intent = intent
+        self.file_base = file_base
         self.theme = theme
         self.elements = list()
-        self.intent = None
 
     def draw(self, tick):
         self.blit(self.theme["background"], (0, 0))

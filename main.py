@@ -1,11 +1,13 @@
+from filework import FileBase
 from load import *
 from UserInterfafce.intention import Intent
-from UserInterfafce.menu_screens import MainMenuScreen
+from menu_screens import MainMenuScreen
 
 if __name__ == "__main__":
     intent = Intent()
+    file_base = FileBase("res")
     from themes import day_theme
-    cur_screen = MainMenuScreen(display, intent, day_theme)
+    cur_screen = MainMenuScreen(display, intent, file_base, day_theme)
 
     running = True
     while running:
