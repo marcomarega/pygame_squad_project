@@ -8,7 +8,7 @@ from load import SCROLL_SHIFT
 
 class ScreenElement(pygame.Surface):
     def __init__(self, parent_screen, rect, extra_style=None):
-        super(ScreenElement, self).__init__(rect.size)
+        super(ScreenElement, self).__init__(rect.size, pygame.SRCALPHA, 32)
         self.extra_style = extra_style
         self.parent_screen = parent_screen
         self.rect = rect
@@ -31,6 +31,9 @@ class ScreenElement(pygame.Surface):
         return self
 
     def draw(self, tick):
+        if not self.showing:
+            return
+        self.fill((0, 0, 0, 0))
         return self
 
 
@@ -56,19 +59,19 @@ class Button(ScreenElement):
             return self
 
     def draw(self, tick):
-        if not self.showing:
-            return self
+        super(Button, self).draw(tick)
         if self.extra_style is not None:
             style = self.extra_style
         else:
             style = self.parent_screen.theme["button"]
         d_color = style.d_color
-        if self.is_pressed:
-            self.fill((max(0, style.background_color[0] - d_color),
-                       max(0, style.background_color[1] - d_color),
-                       max(0, style.background_color[2] - d_color)))
-        else:
-            self.fill(style.background_color)
+        if style.background_color is not None:
+            if self.is_pressed:
+                self.fill((max(0, style.background_color[0] - d_color),
+                           max(0, style.background_color[1] - d_color),
+                           max(0, style.background_color[2] - d_color)))
+            else:
+                self.fill(style.background_color)
         font = pygame.font.Font(None, style.font_size)
         text = font.render(self.text, True, style.main_color)
         self.blit(text, ((self.get_width() - text.get_width()) // 2, (self.get_height() - text.get_height()) // 2))
@@ -97,8 +100,7 @@ class TextPlain(ScreenElement):
         return self.text
 
     def draw(self, tick):
-        if not self.showing:
-            return
+        super(TextPlain, self).draw(tick)
         if self.extra_style is not None:
             style = self.extra_style
         else:
@@ -107,14 +109,10 @@ class TextPlain(ScreenElement):
         text = font.render(self.text, True, style.main_color)
         if style.background_color is not None:
             self.fill(style.background_color)
-            self.blit(text,
-                      ((self.get_width() - text.get_width()) // 2,
-                       (self.get_height() - text.get_height()) // 2))
-            self.parent_screen.blit(self, self.rect.topleft)
-        else:
-            self.parent_screen.blit(text,
-                                    (self.rect.x + (self.get_width() - text.get_width()) // 2,
-                                     self.rect.y + (self.get_height() - text.get_height()) // 2))
+        self.blit(text,
+                  ((self.get_width() - text.get_width()) // 2,
+                   (self.get_height() - text.get_height()) // 2))
+        self.parent_screen.blit(self, self.rect.topleft)
         return self
 
 
@@ -152,8 +150,7 @@ class EditText(ScreenElement):
         return self
 
     def draw(self, tick):
-        if not self.showing:
-            return
+        super(EditText, self).draw(tick)
         if self.extra_style is not None:
             style = self.extra_style
         else:
@@ -173,7 +170,8 @@ class EditText(ScreenElement):
                 background_color = None
         font = pygame.font.Font(None, style.font_size)
         text = font.render(self.text, True, main_color)
-        self.fill(background_color)
+        if background_color is not None:
+            self.fill(background_color)
         pygame.draw.rect(self, main_color, (0, 0, *self.get_size()), 3)
         if text.get_width() < self.get_width() - 6:
             self.blit(text, (3, 3))
@@ -223,9 +221,9 @@ class ScrollArea(ScreenElement):
         return self
 
     def draw(self, tick):
-        if not self.showing:
-            return
-        self.blit(self.theme["scroll_area_background"], (0, 0))
+        super(ScrollArea, self).draw(tick)
+        if self.theme["scroll_area_background"] is not None:
+            self.blit(self.theme["scroll_area_background"], (0, 0))
         for element in self.elements:
             element.draw(tick)
         self.parent_screen.blit(self, self.rect.topleft)

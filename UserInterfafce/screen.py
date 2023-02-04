@@ -5,7 +5,7 @@ from UserInterfafce.intention import Intent
 
 class Screen(pygame.Surface):
     def __init__(self, display, intent, file_base, theme):
-        super(Screen, self).__init__(display.get_size())
+        super(Screen, self).__init__(display.get_size(), pygame.SRCALPHA, 32)
         self.display = display
         self.intent = intent
         self.file_base = file_base

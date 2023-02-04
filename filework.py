@@ -1,7 +1,7 @@
 import os
 import sqlite3 as sql
 
-from load import SAVES_COUNT, SAVE_EXT, LEVEL_EXT
+from load import SAVE_EXT, LEVEL_EXT
 
 
 class FileBase:
@@ -87,8 +87,6 @@ class SaveBase:
             if filename.endswith(SAVE_EXT):
                 save = Save(filename[0:-len(SAVE_EXT)], directory + "\\" + filename)
                 self.saves[save.name] = save
-            if len(self.saves) >= SAVES_COUNT:
-                break
 
     def get_saves(self):
         return self.saves

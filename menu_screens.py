@@ -5,7 +5,7 @@ from pygame import Rect
 from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea, EditText
 from UserInterfafce.screen import Screen
 from UserInterfafce.style import Style
-from filework import FileBase, Save
+from filework import FileBase
 from functions import terminate, hor_center
 from load import GAME_NAME
 from themes import night_theme, day_theme
@@ -34,11 +34,11 @@ class NewGameScreen(Screen):
         super(NewGameScreen, self).__init__(display, intent, file_base, theme)
 
         self.add_element(
-            TextPlain(self, Rect(10, 10, 300, 50), "Новое сохранение", self.theme["header"])
+            TextPlain(self, Rect(10, 10, 330, 50), "Новое сохранение", self.theme["header"])
         )
 
         self.add_element(
-            EditText(self, Rect(10, 70, 300, 50))
+            EditText(self, Rect(20, 70, 300, 50))
             .connect_text_handler(self.start_new_game)
         )
 
