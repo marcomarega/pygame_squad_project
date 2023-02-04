@@ -6,6 +6,7 @@ night_theme = Theme(
     button=Style((255, 255, 255),  (60, 50, 50), 30, 20),
     text=Style((255, 255, 255),  None, 30, 20),
     header=Style((255, 255, 255), None, 30, 50),
+    edit_text=Style((255, 255, 255), (60, 50, 50), 50, 42),
     scroll_area_background=Background(color="black")
 )
 
@@ -14,5 +15,6 @@ day_theme = Theme(
     button=Style((0, 0, 0), (200, 225, 225), 30, 20),
     text=Style((0, 0, 0), None, 30, 20),
     header=Style((0, 0, 0), None, 30, 50),
+    edit_text=Style((0, 0, 0), (200, 225, 225), 50, 42),
     scroll_area_background=Background(color="white")
 )

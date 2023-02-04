@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pygame import Rect
 
-from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea
+from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea, EditText
 from UserInterfafce.screen import Screen
 from UserInterfafce.style import Style
 from filework import FileBase, Save
@@ -17,7 +17,7 @@ class MainMenuScreen(Screen):
 
         self.add_element(TextPlain(self, Rect(10, 10, 300, 50), GAME_NAME, self.theme["header"]))
         self.add_element(Button(self, Rect(10, 70, 150, 50), "Начать игру")
-                         .connect(self.start_new_game))
+                         .connect(lambda: self.intent.set_intent(NewGameScreen, self.file_base, self.theme)))
         self.add_element(Button(self, Rect(10, 130, 150, 50), "Продолжить игру")
                          .connect(lambda: self.intent.set_intent(ChoiceSaveScreen, self.file_base, self.theme)))
         self.add_element(Button(self, Rect(10, 190, 150, 50), "Настройки")
@@ -28,10 +28,24 @@ class MainMenuScreen(Screen):
         self.add_element(Button(self, Rect(10, 310, 150, 50), "Test")
                          .connect(lambda: self.intent.set_intent(PauseMenuScreen, self.file_base, self.theme)))
 
-    def start_new_game(self):
-        save_name = datetime.now().strftime(r"%d%B%Y--%H-%M-%S")
-        self.file_base.new_save(save_name)
-        self.intent.set_intent(GameScreen, self.file_base, self.theme, self.file_base.save_base[save_name])
+
+class NewGameScreen(Screen):
+    def __init__(self, display, intent, file_base: FileBase, theme, *args):
+        super(NewGameScreen, self).__init__(display, intent, file_base, theme)
+
+        self.add_element(
+            TextPlain(self, Rect(10, 10, 300, 50), "Новое сохранение", self.theme["header"])
+        )
+
+        self.add_element(
+            EditText(self, Rect(10, 70, 300, 50))
+            .connect_text_handler(self.start_new_game)
+        )
+
+    def start_new_game(self, name):
+        self.file_base.new_save(name)
+        save = self.file_base.save_base[name]
+        self.intent.set_intent(GameScreen, self.file_base, self.theme, save)
 
 
 class ChoiceSaveScreen(Screen):
@@ -39,12 +53,12 @@ class ChoiceSaveScreen(Screen):
         super(ChoiceSaveScreen, self).__init__(display, intent, file_base, theme)
 
         self.add_element(
-            scroll_area := ScrollArea(self, Rect(10, 10, 300, 300))
+            scroll_area := ScrollArea(self, Rect(10, 10, 500, 500))
         )
         save_button_dh = 60
         for i, save_name in enumerate(self.file_base.get_saves()):
             scroll_area.add_element(
-                button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 250, 50), save_name)
+                button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), save_name)
                 .add_args(self.file_base.save_base[save_name])
                 .connect(lambda save: self.intent.set_intent(GameScreen, self.file_base, self.theme, save))
             )

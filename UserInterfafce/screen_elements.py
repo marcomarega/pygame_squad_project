@@ -1,3 +1,5 @@
+import string
+
 import pygame
 
 from UserInterfafce.screen import Screen
@@ -88,6 +90,12 @@ class TextPlain(ScreenElement):
         super(TextPlain, self).__init__(parent_screen, rect, extra_style)
         self.text = text
 
+    def set_text(self, text):
+        self.text = text
+
+    def get_text(self):
+        return self.text
+
     def draw(self, tick):
         if not self.showing:
             return
@@ -110,6 +118,71 @@ class TextPlain(ScreenElement):
         return self
 
 
+class EditText(ScreenElement):
+    def __init__(self, parent_screen, rect, text="", extra_theme=None):
+        super(EditText, self).__init__(parent_screen, rect, None)
+        self.selected = False
+        self.text = text
+        self.functions = list()
+
+    def connect_text_handler(self, functon):
+        self.functions.append(functon)
+        return self
+
+    def set_text(self, text):
+        self.text = text
+        return self
+
+    def get_text(self):
+        return self.text
+
+    def push_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+            self.selected = True
+        if event.type == pygame.MOUSEBUTTONDOWN and not self.rect.collidepoint(event.pos):
+            self.selected = False
+        if self.selected and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                for function in self.functions:
+                    function(self.text)
+            elif event.key == pygame.K_BACKSPACE:
+                self.text = self.text[0:-1]
+            elif event.unicode.upper() in string.ascii_letters:
+                self.text += event.unicode.upper()
+        return self
+
+    def draw(self, tick):
+        if not self.showing:
+            return
+        if self.extra_style is not None:
+            style = self.extra_style
+        else:
+            style = self.parent_screen.theme["edit_text"]
+        if self.selected:
+            main_color = style.main_color
+            background_color = style.background_color
+        else:
+            main_color = (max(0, style.main_color[0] - style.d_color),
+                          max(0, style.main_color[1] - style.d_color),
+                          max(0, style.main_color[2] - style.d_color))
+            if style.background_color is not None:
+                background_color = (max(0, style.background_color[0] - style.d_color),
+                                    max(0, style.background_color[1] - style.d_color),
+                                    max(0, style.background_color[2] - style.d_color))
+            else:
+                background_color = None
+        font = pygame.font.Font(None, style.font_size)
+        text = font.render(self.text, True, main_color)
+        self.fill(background_color)
+        pygame.draw.rect(self, main_color, (0, 0, *self.get_size()), 3)
+        if text.get_width() < self.get_width() - 6:
+            self.blit(text, (3, 3))
+        else:
+            self.blit(text, (self.get_width() - text.get_width() - 6, 3))
+        self.parent_screen.blit(self, self.rect.topleft)
+        return self
+
+
 class ScrollArea(ScreenElement):
     def __init__(self, parent_screen, rect, extra_theme=None):
         super(ScrollArea, self).__init__(parent_screen, rect, None)
@@ -119,9 +192,12 @@ class ScrollArea(ScreenElement):
             self.theme = extra_theme
         self.elements = list()
         self.dy = 0
+        self.lower_y = 0
 
     def add_element(self, element):
         self.elements.append(element)
+        self.lower_y = max(self.lower_y, element.rect.bottom)
+        return self
 
     def push_event(self, event):
         if event.type == pygame.MOUSEWHEEL and self.rect.collidepoint(*pygame.mouse.get_pos()):
@@ -129,17 +205,28 @@ class ScrollArea(ScreenElement):
             if self.dy > 0:
                 for element in self.elements:
                     element.move(0, event.y * SCROLL_SHIFT - self.dy)
+                self.lower_y += event.y * SCROLL_SHIFT - self.dy
                 self.dy = 0
             else:
                 for element in self.elements:
                     element.move(0, event.y * SCROLL_SHIFT)
+                self.lower_y += event.y * SCROLL_SHIFT
+            if self.lower_y < 10:
+                for element in self.elements:
+                    element.move(0, 10 - self.lower_y)
+                self.dy += 10 - self.lower_y
+                self.lower_y = 10
         if hasattr(event, "pos"):
             event.pos = (event.pos[0] - self.rect.x, event.pos[1] - self.rect.y)
         for element in self.elements:
             element.push_event(event)
+        return self
 
     def draw(self, tick):
+        if not self.showing:
+            return
         self.blit(self.theme["scroll_area_background"], (0, 0))
         for element in self.elements:
             element.draw(tick)
         self.parent_screen.blit(self, self.rect.topleft)
+        return self
