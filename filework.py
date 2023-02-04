@@ -7,8 +7,8 @@ from load import SAVES_COUNT, SAVE_EXT, LEVEL_EXT
 class FileBase:
     def __init__(self, directory):
         self.directory = directory
-        self.level_base = LevelBase(directory + "\\levels")
-        self.save_base = SaveBase(directory + "\\saves")
+        self.level_base = LevelBase(directory + "\\level")
+        self.save_base = SaveBase(directory + "\\save")
 
     def get_levels(self):
         return self.level_base.levels
@@ -20,7 +20,7 @@ class FileBase:
         return self.save_base.get_saves()
 
     def new_save(self, save_name):
-        save = Save(save_name, self.directory + "\\saves\\" + save_name + SAVE_EXT)
+        save = Save(save_name, self.directory + "\\save\\" + save_name + SAVE_EXT)
         self.save_base.write(save)
 
 
