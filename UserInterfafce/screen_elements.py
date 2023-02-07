@@ -117,8 +117,8 @@ class TextPlain(ScreenElement):
 
 
 class EditText(ScreenElement):
-    def __init__(self, parent_screen, rect, text="", extra_theme=None):
-        super(EditText, self).__init__(parent_screen, rect, None)
+    def __init__(self, parent_screen, rect, text="", extra_style=None):
+        super(EditText, self).__init__(parent_screen, rect, extra_style)
         self.selected = False
         self.text = text
         self.functions = list()
@@ -228,3 +228,8 @@ class ScrollArea(ScreenElement):
             element.draw(tick)
         self.parent_screen.blit(self, self.rect.topleft)
         return self
+    
+    
+class ScreenKeeper(ScreenElement):
+    def __init__(self, parent_screen, rect, extra_style=None):
+        super(ScreenKeeper, self).__init__(parent_screen, rect, extra_style)
