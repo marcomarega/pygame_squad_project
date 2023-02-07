@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pygame import Rect
 
-from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea, EditText
+from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea, EditText, ScreenKeeper
 from UserInterfafce.screen import Screen
 from UserInterfafce.style import Style
 from filework import FileBase
@@ -98,7 +98,23 @@ class SettingsScreen(Screen):
 class GameScreen(Screen):
     def __init__(self, display, intent, file_base, theme, *args):
         super(GameScreen, self).__init__(display, intent, file_base, theme)
-        print(args[0].name)
+        self.args = args
+        # print(args[0].name)
+
+        self.add_element(ScreenKeeper(self, Rect(400, 50, 500, 350)))
+        self.add_element(Button(self, Rect(50, 50, 200, 50), "Сохранить и выйти")
+                         .connect(lambda: self.saving()))
+        self.add_element(
+            Button(self, Rect(50, 130, 200, 50), "Перейти в меню настроек")
+            .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
+                                                    GameScreen)))
+
+    def saving(self):
+        for save in self.file_base.get_saves():
+            if save.get_name() == self.args[0].get_name():
+                self.file_base.del_save(save.get_name())
+                self.file_base.write(save.get_name())
+        self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)
 
 
 class PauseMenuScreen(Screen):

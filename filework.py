@@ -99,6 +99,9 @@ class SaveBase:
         with open(new_save.filename, mode="w", encoding="utf-8") as file:
             file.write(" ".join(map(str, new_save.passed_levels)))
 
+    def del_save(self, name):
+        del self.saves[name]
+
 
 class Save:
     def __init__(self, name, filename):
@@ -115,3 +118,6 @@ class Save:
 
     def is_passed(self, level):
         return hash(level) in self.passed_levels
+
+    def get_name(self):
+        return self.name
