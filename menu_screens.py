@@ -42,6 +42,9 @@ class NewGameScreen(Screen):
             .connect_text_handler(self.start_new_game)
         )
 
+        self.add_element(Button(self, Rect(10, 530, 150, 50), "Назад")
+                         .connect(lambda: self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)))
+
     def start_new_game(self, name):
         self.file_base.new_save(name)
         save = self.file_base.save_base[name]
