@@ -2,6 +2,7 @@ import string
 
 import pygame
 
+from UserInterfafce.intention import Intent
 from UserInterfafce.screen import Screen
 from load import SCROLL_SHIFT
 
@@ -231,5 +232,24 @@ class ScrollArea(ScreenElement):
     
     
 class ScreenKeeper(ScreenElement):
-    def __init__(self, parent_screen, rect, extra_style=None):
-        super(ScreenKeeper, self).__init__(parent_screen, rect, extra_style)
+    def __init__(self, parent_screen, rect, extra_theme=None):
+        super(ScreenKeeper, self).__init__(parent_screen, rect, None)
+        if extra_theme is not None:
+            self.theme = extra_theme
+        else:
+            self.theme = self.parent_screen.theme
+        self.intent = Intent(self)
+        self.current_screen = None
+
+    def set_current_screen(self, screen_class):
+        self.current_screen = screen_class(self, self.intent, self.parent_screen.file_base, self.theme)
+        return self
+
+    def push_intent(self):
+        self.current_screen = self.intent.get_screen(self)
+
+    def push_event(self, event):
+        if self.current_screen is None:
+            return self
+        self.current_screen.push_event(event)
+        return self
