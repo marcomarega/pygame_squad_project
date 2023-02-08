@@ -1,5 +1,4 @@
 import os
-import sqlite3 as sql
 
 from load import SAVE_EXT, LEVEL_EXT
 
@@ -115,6 +114,10 @@ class Save:
 
     def get_passed_levels(self):
         return self.passed_levels
+
+    def new_passed_level(self, level):
+        if hash(level) not in self.passed_levels:
+            self.passed_levels.append(hash(level))
 
     def is_passed(self, level):
         return hash(level) in self.passed_levels
