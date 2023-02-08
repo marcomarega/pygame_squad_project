@@ -206,6 +206,17 @@ class Board(ScreenElement):
     def get_height(self):
         return self.height
 
+    def push_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                self.player.move("u")
+            if event.key == pygame.K_DOWN:
+                self.player.move("d")
+            if event.key == pygame.K_LEFT:
+                self.player.move("l")
+            if event.key == pygame.K_RIGHT:
+                self.player.move("r")
+
     def draw(self, screen):
         for i in range(self.width):
             for j in range(self.height):
