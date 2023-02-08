@@ -2,6 +2,7 @@ from random import choice
 
 import pygame
 
+from UserInterfafce.screen_elements import ScreenElement
 from filework import Level
 from functions import load_image
 
@@ -48,6 +49,9 @@ class GameElement(pygame.Surface):
     def can_move_on_empty_board(self, direction):
         pos = get_pos_by_direction(self.pos, direction)
         return 0 <= pos[0] < self.board.get_width() and 0 <= pos[1] < self.board.get_height()
+
+    def draw(self, tick):
+        self.board.blit(self, (self.pos[0] * self.board.cell_size, self.pos[1] * self.board.cell_size))
 
 
 class VoidElement(GameElement):
@@ -124,6 +128,9 @@ class Finish(pygame.Surface):
     def deactivate(self):
         self.activated = True
 
+    def draw(self, tick):
+        self.board.blit(self, (self.pos[0] * self.board.cell_size, self.pos[1] * self.board.cell_size))
+
 
 class VoidFinish(pygame.Surface):
     def __init__(self, board, pos=(0, 0)):
@@ -136,14 +143,19 @@ class VoidFinish(pygame.Surface):
     def deactivate(self):
         self.activated = True
 
+    def draw(self, tick):
+        pass
 
-class Board:
-    def __init__(self, level: Level):
+
+class Board(ScreenElement):
+    def __init__(self, parent_screen, rect, level: Level, cell_size):
+        super(Board, self).__init__(parent_screen, rect)
         self.level = level
         self.player = VoidElement(self)
         self.map_upper = list()
         self.map_lower = list()
         self.finishes = list()
+        self.cell_size = cell_size
         for j, row in enumerate(level.get_map()):
             for i, element in enumerate(row):
                 if element == PLAYER:
@@ -193,3 +205,9 @@ class Board:
 
     def get_height(self):
         return self.height
+
+    def draw(self, screen):
+        for i in range(self.width):
+            for j in range(self.height):
+                self.map_lower[i][j].draw()
+                self.map_upper[i][j].draw()
