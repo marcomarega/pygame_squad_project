@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from pygame import Rect
@@ -111,9 +112,11 @@ class GameScreen(Screen):
 
     def saving(self):
         for save in self.file_base.get_saves():
-            if save.get_name() == self.args[0].get_name():
-                self.file_base.del_save(save.get_name())
-                self.file_base.write(save.get_name())
+            if save == self.args[0].get_name():
+                os.remove(os.getcwd() + '\\res\\save\\' + save + '.save')
+                self.file_base.del_save(save)
+                self.file_base.new_save(save)
+                break
         self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)
 
 

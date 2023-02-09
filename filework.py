@@ -22,6 +22,9 @@ class FileBase:
         save = Save(save_name, self.directory + "\\save\\" + save_name + SAVE_EXT)
         self.save_base.write(save)
 
+    def del_save(self, name):
+        del self.save_base[name]
+
 
 class LevelBase:
     def __init__(self, directory):
@@ -93,13 +96,13 @@ class SaveBase:
     def __getitem__(self, item):
         return self.saves[item]
 
+    def __delitem__(self, key):
+        del self.saves[key]
+
     def write(self, new_save):
         self.saves[new_save.name] = new_save
         with open(new_save.filename, mode="w", encoding="utf-8") as file:
             file.write(" ".join(map(str, new_save.passed_levels)))
-
-    def del_save(self, name):
-        del self.saves[name]
 
 
 class Save:
