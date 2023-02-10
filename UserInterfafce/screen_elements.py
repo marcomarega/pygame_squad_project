@@ -253,3 +253,33 @@ class ScreenKeeper(ScreenElement):
             return self
         self.current_screen.push_event(event)
         return self
+
+
+class FeaturesLearning(ScreenElement):
+    def __init__(self, parent_screen, rect, text: TextPlain, extra_theme=None):
+        super(FeaturesLearning, self).__init__(parent_screen, rect, None)
+        if extra_theme is None:
+            self.theme = self.parent_screen.theme
+        else:
+            self.theme = extra_theme
+        self.text = text
+        self.buttons = []
+
+    def add_element(self, element):
+        self.buttons.append(element)
+
+    def push_event(self, event):
+        for btn in self.buttons:
+            if event.type == pygame.MOUSEBUTTONDOWN and btn.collidepoint(*pygame.mouse.get_pos()):
+                pass
+
+    def draw(self, tick):
+        super(FeaturesLearning, self).draw(tick)
+        self.text.draw(tick)
+        for btn in self.buttons:
+            btn.draw(tick)
+        self.parent_screen.blit(self, self.rect.topleft)
+        return self
+
+    def close(self):
+        pass

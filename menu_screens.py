@@ -75,9 +75,10 @@ class ChoiceSaveScreen(Screen):
 
 
 class SettingsScreen(Screen):
-    def __init__(self, display, intent, file_base, theme, from_screen):
+    def __init__(self, display, intent, file_base, theme, from_screen, from_save=None):
         super(SettingsScreen, self).__init__(display, intent, file_base, theme)
         self.from_screen = from_screen
+        self.from_save = from_save
 
         self.add_element(TextPlain(self, Rect(10, 10, 150, 50), "Параметры"))
         self.add_element(
@@ -90,17 +91,22 @@ class SettingsScreen(Screen):
                    Style("black", "white", 50, self.theme["text"].font_size))
             .connect(lambda: self.set_theme(day_theme))
         )
-        self.add_element(
-            Button(self, Rect(10, 130, 150, 50), "Назад")
-            .connect(lambda: self.intent.set_intent(self.from_screen, self.file_base, self.theme))
-        )
+        if self.from_screen == GameScreen:
+            self.add_element(
+                Button(self, Rect(10, 130, 150, 50), "Назад")
+                .connect(lambda: self.intent.set_intent(self.from_screen, self.file_base, self.theme, self.from_save))
+            )
+        else:
+            self.add_element(
+                Button(self, Rect(10, 130, 150, 50), "Назад")
+                .connect(lambda: self.intent.set_intent(self.from_screen, self.file_base, self.theme))
+            )
 
 
 class GameScreen(Screen):
     def __init__(self, display, intent, file_base, theme, *args):
         super(GameScreen, self).__init__(display, intent, file_base, theme)
         self.args = args
-        # print(args[0].name)
 
         self.add_element(ScreenKeeper(self, Rect(400, 50, 500, 350)))
         self.add_element(Button(self, Rect(50, 50, 200, 50), "Сохранить и выйти")
@@ -108,7 +114,7 @@ class GameScreen(Screen):
         self.add_element(
             Button(self, Rect(50, 130, 200, 50), "Перейти в меню настроек")
             .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
-                                                    GameScreen)))
+                                                    GameScreen, self.args[0])))
 
     def saving(self):
         for save in self.file_base.get_saves():
