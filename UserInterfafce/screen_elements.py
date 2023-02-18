@@ -248,6 +248,10 @@ class ScreenKeeper(ScreenElement):
     def push_intent(self):
         self.current_screen = self.intent.get_screen(self)
 
+    def draw(self, tick):
+        self.parent_screen.blit(self.current_screen, (0, 0))
+        return self
+
     def push_event(self, event):
         if self.current_screen is None:
             return self
