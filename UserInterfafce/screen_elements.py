@@ -88,6 +88,9 @@ class Button(ScreenElement):
         self.functions.append(function)
         return self
 
+    def get_text(self):
+        return self.text
+
 
 class TextPlain(ScreenElement):
     def __init__(self, parent_screen: Screen, rect: pygame.Rect, text, extra_style=None):
@@ -268,6 +271,7 @@ class FeaturesLearning(ScreenElement):
             self.theme = extra_theme
         self.text = text
         self.buttons = []
+        self.closing_buttons = {'No': 0, 'Close': 1, 'Got it!': -1}
 
     def add_element(self, element):
         self.buttons.append(element)
@@ -275,15 +279,20 @@ class FeaturesLearning(ScreenElement):
     def push_event(self, event):
         for btn in self.buttons:
             if event.type == pygame.MOUSEBUTTONDOWN and btn.collidepoint(*pygame.mouse.get_pos()):
-                pass
+                if btn.get_text() in self.closing_buttons:
+                    self.close()
+                else:
+                    btn.push_event()
+                    break
+
+    def close(self):
+        del self
 
     def draw(self, tick):
         super(FeaturesLearning, self).draw(tick)
+        pygame.draw.rect(self.parent_screen, (255, 255, 255), self.rect)
         self.text.draw(tick)
         for btn in self.buttons:
             btn.draw(tick)
         self.parent_screen.blit(self, self.rect.topleft)
         return self
-
-    def close(self):
-        pass

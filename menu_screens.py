@@ -1,19 +1,23 @@
 import os
-from datetime import datetime
 
+import pygame
 from pygame import Rect
 
-from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea, EditText, ScreenKeeper
 from UserInterfafce.screen import Screen
+from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea, EditText, ScreenKeeper, FeaturesLearning
 from UserInterfafce.style import Style
 from filework import FileBase
 from functions import terminate, hor_center
 from load import GAME_NAME
 from themes import night_theme, day_theme
+# from game.elements import Board
+
+
+# from datetime import datetime
 
 
 class MainMenuScreen(Screen):
-    def __init__(self, display, intent, file_base, theme, *args):
+    def __init__(self, display, intent, file_base, theme):
         super(MainMenuScreen, self).__init__(display, intent, file_base, theme)
 
         self.add_element(TextPlain(self, Rect(10, 10, 300, 50), GAME_NAME, self.theme["header"]))
@@ -27,11 +31,11 @@ class MainMenuScreen(Screen):
         self.add_element(Button(self, Rect(10, 250, 150, 50), "Выйти из игры")
                          .connect(lambda: terminate()))
         self.add_element(Button(self, Rect(10, 310, 150, 50), "Test")
-                         .connect(lambda: self.intent.set_intent(PauseMenuScreen, self.file_base, self.theme)))
+                         .connect(lambda: self.intent.set_intent(LevelPlaying, self.file_base, self.theme)))
 
 
 class NewGameScreen(Screen):
-    def __init__(self, display, intent, file_base: FileBase, theme, *args):
+    def __init__(self, display, intent, file_base: FileBase, theme):
         super(NewGameScreen, self).__init__(display, intent, file_base, theme)
 
         self.add_element(
@@ -53,7 +57,7 @@ class NewGameScreen(Screen):
 
 
 class ChoiceSaveScreen(Screen):
-    def __init__(self, display, intent, file_base: FileBase, theme, *args):
+    def __init__(self, display, intent, file_base: FileBase, theme):
         super(ChoiceSaveScreen, self).__init__(display, intent, file_base, theme)
 
         self.add_element(
@@ -94,7 +98,8 @@ class SettingsScreen(Screen):
         if self.from_screen == GameScreen:
             self.add_element(
                 Button(self, Rect(10, 130, 150, 50), "Назад")
-                .connect(lambda: self.intent.set_intent(self.from_screen, self.file_base, self.theme, self.from_save))
+                .connect(
+                    lambda: self.intent.set_intent(self.from_screen, self.file_base, self.theme, self.from_save))
             )
         else:
             self.add_element(
@@ -108,13 +113,14 @@ class GameScreen(Screen):
         super(GameScreen, self).__init__(display, intent, file_base, theme)
         self.args = args
 
-        self.add_element(ScreenKeeper(self, Rect(400, 50, 500, 350)))
-        self.add_element(Button(self, Rect(50, 50, 200, 50), "Сохранить и выйти")
+        self.add_element(Button(self, Rect(20, 50, 200, 50), "Сохранить и выйти")
                          .connect(lambda: self.saving()))
         self.add_element(
-            Button(self, Rect(50, 130, 200, 50), "Перейти в меню настроек")
+            Button(self, Rect(20, 130, 200, 50), "Перейти в меню настроек")
             .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
                                                     GameScreen, self.args[0])))
+        self.add_element(ScreenKeeper(self, Rect(250, 50, 500, 500))
+                         .set_current_screen(LevelPlaying))
 
     def saving(self):
         for save in self.file_base.get_saves():
@@ -126,14 +132,42 @@ class GameScreen(Screen):
         self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)
 
 
+class LevelMenuScreen(Screen):
+    def __init__(self, screen, intent, file_base, theme):
+        super(LevelMenuScreen, self).__init__(screen, intent, file_base, theme)
+
+        self.add_element(
+            scroll_area := ScrollArea(self, screen.get_rect())
+        )
+
+        save_button_dh = 60
+        for i, level_name in enumerate(self.file_base.get_levels()):
+            scroll_area.add_element(
+                button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), level_name)
+                .add_args(self.file_base.level_base[level_name])
+                .connect(lambda save: self.intent.set_intent(GameScreen, self.file_base, self.theme, save))
+            )
+            button.level_name = level_name
+
+
+class LevelPlaying(Screen):
+    def __init__(self, screen, intent, file_base, theme):
+        super(LevelPlaying, self).__init__(screen, intent, file_base, theme)
+        # self.level = level
+
+        # self.add_element(Board(screen, Rect(50, 50, 200, 200), self.level, 20))
+        self.add_element(TextPlain(self, Rect(400, 300, 50, 50), "Test"))
+
+
 class PauseMenuScreen(Screen):
     def __init__(self, screen, intent, file_base, theme):
         super(PauseMenuScreen, self).__init__(screen, intent, file_base, theme)
 
         self.add_element(Button(self, Rect(hor_center(screen.get_width(), 200), 215, 200, 50), "Сохранить и выйти")
                          .connect(lambda: self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)))
-        self.add_element(Button(self, Rect(hor_center(screen.get_width(), 200), 275, 200, 50), "Перейти в меню настроек")
-                         .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
-                                                                 PauseMenuScreen)))
+        self.add_element(
+            Button(self, Rect(hor_center(screen.get_width(), 200), 275, 200, 50), "Перейти в меню настроек")
+            .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
+                                                    PauseMenuScreen)))
         self.add_element(Button(self, Rect(hor_center(screen.get_width(), 200), 335, 200, 50), "Продолжить")
                          .connect(lambda: print(1)))
