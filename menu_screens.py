@@ -109,22 +109,22 @@ class SettingsScreen(Screen):
 
 
 class GameScreen(Screen):
-    def __init__(self, display, intent, file_base, theme, *args):
+    def __init__(self, display, intent, file_base, theme, save):
         super(GameScreen, self).__init__(display, intent, file_base, theme)
-        self.args = args
+        self.save = save
 
         self.add_element(Button(self, Rect(20, 50, 200, 50), "Сохранить и выйти")
                          .connect(lambda: self.saving()))
         self.add_element(
             Button(self, Rect(20, 130, 200, 50), "Перейти в меню настроек")
             .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
-                                                    GameScreen, self.args[0])))
+                                                    GameScreen, self.save)))
         self.add_element(ScreenKeeper(self, Rect(250, 50, 500, 500), self.theme["screen_keeper_theme"])
-                         .set_current_screen(LevelMenuScreen))
+                         .set_current_screen(LevelMenuScreen, self.save))
 
     def saving(self):
         for save in self.file_base.get_saves():
-            if save == self.args[0].get_name():
+            if save == self.save.get_name():
                 os.remove(os.getcwd() + '\\res\\save\\' + save + '.save')
                 self.file_base.del_save(save)
                 self.file_base.new_save(save)
@@ -133,8 +133,9 @@ class GameScreen(Screen):
 
 
 class LevelMenuScreen(Screen):
-    def __init__(self, screen, intent, file_base, theme):
+    def __init__(self, screen, intent, file_base, theme, save):
         super(LevelMenuScreen, self).__init__(screen, intent, file_base, theme)
+        self.save = save
 
         self.add_element(
             scroll_area := ScrollArea(self, screen.get_rect())
@@ -146,34 +147,35 @@ class LevelMenuScreen(Screen):
                 button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), level_name,
                                  self.checking_passing_levels(level_name))
                 .add_args(self.file_base.level_base[level_name])
-                .connect(lambda save: self.intent.set_intent(LevelPlaying, self.file_base, self.theme, save))
+                .connect(lambda level: self.screen.set_current_screen(LevelPlaying, self.save, level))
             )
             button.level_name = level_name
 
-    def checking_passing_levels(self, level_name):
-        if 'unpassed' in level_name:
+    def checking_passing_levels(self, level):
+        if self.save.is_passed(level):
             return Style((255, 255, 255), (255, 0, 0), 30, 20)
-        else:
-            return Style((255, 255, 255), (0, 255, 0), 30, 20)
+        return Style((255, 255, 255), (0, 255, 0), 30, 20)
 
 
 class LevelPlaying(Screen):
-    def __init__(self, screen, intent, file_base, theme):
+    def __init__(self, screen, intent, file_base, theme, save, level):
         super(LevelPlaying, self).__init__(screen, intent, file_base, theme)
-        # self.level = level
+        self.level = level
+        self.save = save
 
         # self.add_element(Board(screen, Rect(50, 50, 200, 200), self.level, 20))
         self.add_element(TextPlain(self, Rect(400, 300, 50, 50), "Test"))
 
 
 class FinishScreen(Screen):
-    def __init__(self, screen, intent, file_base, theme, level):
+    def __init__(self, screen, intent, file_base, theme, save, level):
         super(FinishScreen, self).__init__(screen, intent, file_base, theme)
         self.level = level
+        self.save = save
 
         self.add_element(TextPlain(self, Rect(10, 10, 480, 50), "Вы победили", self.theme["header"]))
         self.add_element(Button(self, Rect(175, 310, 150, 50), "Выбрать новый уровень")
-                         .connect(lambda: self.intent.set_intent(LevelMenuScreen, self.file_base, self.theme)))
+                         .connect(lambda: self.screen.set_current_screen(LevelMenuScreen, self.save)))
         self.save_level()
 
     def save_level(self):

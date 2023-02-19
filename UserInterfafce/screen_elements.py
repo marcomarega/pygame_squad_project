@@ -244,8 +244,8 @@ class ScreenKeeper(ScreenElement):
         self.intent = Intent(self)
         self.current_screen = None
 
-    def set_current_screen(self, screen_class):
-        self.current_screen = screen_class(self, self.intent, self.parent_screen.file_base, self.theme)
+    def set_current_screen(self, screen_class, *args):
+        self.current_screen = screen_class(self, self.intent, self.parent_screen.file_base, self.theme, *args)
         return self
 
     def push_intent(self):
