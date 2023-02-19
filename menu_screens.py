@@ -119,7 +119,7 @@ class GameScreen(Screen):
             Button(self, Rect(20, 130, 200, 50), "Перейти в меню настроек")
             .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
                                                     GameScreen, self.args[0])))
-        self.add_element(ScreenKeeper(self, Rect(250, 50, 500, 500))
+        self.add_element(ScreenKeeper(self, Rect(250, 50, 500, 500), self.theme["screen_keeper_theme"])
                          .set_current_screen(LevelPlaying))
 
     def saving(self):

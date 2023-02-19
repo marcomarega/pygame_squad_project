@@ -252,7 +252,8 @@ class ScreenKeeper(ScreenElement):
         self.current_screen = self.intent.get_screen(self)
 
     def draw(self, tick):
-        self.parent_screen.blit(self.current_screen, (0, 0))
+        self.current_screen.draw(tick)
+        self.parent_screen.blit(self.current_screen, self.rect.topleft)
         return self
 
     def push_event(self, event):
