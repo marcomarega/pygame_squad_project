@@ -120,7 +120,7 @@ class GameScreen(Screen):
             .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
                                                     GameScreen, self.args[0])))
         self.add_element(ScreenKeeper(self, Rect(250, 50, 500, 500), self.theme["screen_keeper_theme"])
-                         .set_current_screen(LevelPlaying))
+                         .set_current_screen(LevelMenuScreen))
 
     def saving(self):
         for save in self.file_base.get_saves():
@@ -143,11 +143,18 @@ class LevelMenuScreen(Screen):
         save_button_dh = 60
         for i, level_name in enumerate(self.file_base.get_levels()):
             scroll_area.add_element(
-                button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), level_name)
+                button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), level_name,
+                                 self.checking_passing_levels(level_name))
                 .add_args(self.file_base.level_base[level_name])
-                .connect(lambda save: self.intent.set_intent(GameScreen, self.file_base, self.theme, save))
+                .connect(lambda save: self.intent.set_intent(LevelPlaying, self.file_base, self.theme, save))
             )
             button.level_name = level_name
+
+    def checking_passing_levels(self, level_name):
+        if 'unpassed' in level_name:
+            return Style((255, 255, 255), (255, 0, 0), 30, 20)
+        else:
+            return Style((255, 255, 255), (0, 255, 0), 30, 20)
 
 
 class LevelPlaying(Screen):
@@ -157,6 +164,21 @@ class LevelPlaying(Screen):
 
         # self.add_element(Board(screen, Rect(50, 50, 200, 200), self.level, 20))
         self.add_element(TextPlain(self, Rect(400, 300, 50, 50), "Test"))
+
+
+class FinishScreen(Screen):
+    def __init__(self, screen, intent, file_base, theme, level):
+        super(FinishScreen, self).__init__(screen, intent, file_base, theme)
+        self.level = level
+
+        self.add_element(TextPlain(self, Rect(10, 10, 480, 50), "Вы победили", self.theme["header"]))
+        self.add_element(Button(self, Rect(175, 310, 150, 50), "Выбрать новый уровень")
+                         .connect(lambda: self.intent.set_intent(LevelMenuScreen, self.file_base, self.theme)))
+        self.save_level()
+
+    def save_level(self):
+        level_name = self.level.get_name()[0:-9]
+        self.level.set_name(level_name)
 
 
 class PauseMenuScreen(Screen):
