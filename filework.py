@@ -114,7 +114,7 @@ class Save:
         self.filename = filename
         try:
             with open(filename, mode="r", encoding="utf-8") as file:
-                self.passed_levels = map(int, file.readline().strip().split(" "))
+                self.passed_levels = list(map(int, (num for num in file.readline().strip().split(" ") if num.isdigit())))
         except FileNotFoundError:
             self.passed_levels = list()
 
