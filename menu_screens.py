@@ -142,19 +142,19 @@ class LevelMenuScreen(Screen):
         )
 
         save_button_dh = 60
-        for i, level_name in enumerate(self.file_base.get_levels()):
+        for i, level in enumerate(self.file_base.get_levels()):
             scroll_area.add_element(
-                button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), level_name,
-                                 self.checking_passing_levels(level_name))
+                button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), level,
+                                 self.checking_passing_levels(level))
                 .add_args(self.file_base.level_base[i])
-                .connect(lambda level: self.screen.set_current_screen(LevelPlaying, self.save, level))
+                .connect(lambda level1: self.screen.set_current_screen(LevelPlaying, self.save, level1))
             )
-            button.level_name = level_name
+            button.level_name = level
 
     def checking_passing_levels(self, level):
         if self.save.is_passed(level):
-            return Style((255, 255, 255), (255, 0, 0), 30, 20)
-        return Style((255, 255, 255), (0, 255, 0), 30, 20)
+            return Style((255, 255, 255), (0, 255, 0), 30, 20)
+        return Style((255, 255, 255), (255, 0, 0), 30, 20)
 
 
 class LevelPlaying(Screen):
@@ -176,11 +176,7 @@ class FinishScreen(Screen):
         self.add_element(TextPlain(self, Rect(10, 10, 480, 50), "Вы победили", self.theme["header"]))
         self.add_element(Button(self, Rect(175, 310, 150, 50), "Выбрать новый уровень")
                          .connect(lambda: self.screen.set_current_screen(LevelMenuScreen, self.save)))
-        self.save_level()
-
-    def save_level(self):
-        level_name = self.level.get_name()[0:-9]
-        self.level.set_name(level_name)
+        self.save.new_passed_level(self.level)
 
 
 class PauseMenuScreen(Screen):
