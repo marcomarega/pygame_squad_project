@@ -144,10 +144,10 @@ class LevelMenuScreen(Screen):
         save_button_dh = 60
         for i, level in enumerate(self.file_base.get_levels()):
             scroll_area.add_element(
-                button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), level,
+                button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), level.get_name(),
                                  self.checking_passing_levels(level))
                 .add_args(self.file_base.level_base[i])
-                .connect(lambda level1: self.screen.set_current_screen(LevelPlaying, self.save, level1))
+                .connect(lambda level1: self.display.set_current_screen(LevelPlaying, self.save, level1))
             )
             button.level_name = level
 
