@@ -10,8 +10,7 @@ from filework import FileBase
 from functions import terminate, hor_center
 from load import GAME_NAME
 from themes import night_theme, day_theme
-# from game.elements import Board
-
+from game.elements import Board
 
 # from datetime import datetime
 
@@ -165,8 +164,7 @@ class LevelPlaying(Screen):
         self.level = level
         self.save = save
 
-        # self.add_element(Board(screen, Rect(50, 50, 200, 200), self.level, 20))
-        self.add_element(TextPlain(self, Rect(400, 300, 50, 50), "Test"))
+        self.add_element(Board(self, screen.get_rect(), self.level, 72))
 
 
 class FinishScreen(Screen):
