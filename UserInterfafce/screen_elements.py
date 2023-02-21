@@ -257,6 +257,8 @@ class ScreenKeeper(ScreenElement):
         return self
 
     def push_event(self, event):
+        if hasattr(event, "pos"):
+            event.pos = (event.pos[0] - self.rect.x, event.pos[1] - self.rect.y)
         if self.current_screen is None:
             return self
         self.current_screen.push_event(event)
