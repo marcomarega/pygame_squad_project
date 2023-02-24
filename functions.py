@@ -1,6 +1,7 @@
 import sys
 import os
 import pygame
+from pprint import pprint
 
 from load import WIDTH
 

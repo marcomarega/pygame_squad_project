@@ -164,7 +164,7 @@ class LevelPlaying(Screen):
         self.level = level
         self.save = save
 
-        self.add_element(Board(self, screen.get_rect(), self.level, 72))
+        self.add_element(Board(self, screen.get_rect(), self.level, 25))
 
 
 class FinishScreen(Screen):

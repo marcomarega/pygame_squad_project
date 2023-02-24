@@ -10,7 +10,7 @@ PLAYER = "@"
 BOX = "#"
 WALL = "X"
 FINISH = "0"
-CELL = ".'"
+CELL = "."
 VOID = " "
 
 PLAYER_IMG = load_image("res\\image\\player.png")
@@ -20,16 +20,16 @@ FINISH_IMG = load_image("res\\image\\finish.png")
 
 
 def get_pos_by_direction(pos0, direction):
-    pos = pos0
+    pos = list(pos0)
     if direction == "d":
-        pos[0] = pos0[0] + 1
-    if direction == "u":
-        pos[0] = pos0[0] - 1
-    if direction == "r":
         pos[1] = pos0[1] + 1
-    if direction == "l":
+    if direction == "u":
         pos[1] = pos0[1] - 1
-    return pos
+    if direction == "r":
+        pos[0] = pos0[0] + 1
+    if direction == "l":
+        pos[0] = pos0[0] - 1
+    return tuple(pos)
 
 
 class GameElement(pygame.Surface):
@@ -38,7 +38,6 @@ class GameElement(pygame.Surface):
         self.blit(image, (0, 0))
         self.board = board
         self.pos = pos
-        board.set_upper(pos, self)
 
     def move(self, direction, d=0):
         pass
@@ -67,6 +66,8 @@ class Player(GameElement):
         super(Player, self).__init__(PLAYER_IMG, board, pos)
 
     def move(self, direction, d=0):
+        if not self.board.going:
+            return
         pos = get_pos_by_direction(self.pos, direction)
         if self.can_move(direction, d):
             self.board.get_upper(pos).move(direction)
@@ -85,13 +86,13 @@ class Player(GameElement):
 class Box(GameElement):
     def __init__(self, board, pos=(0, 0)):
         super(Box, self).__init__(BOX_IMG, board, pos)
-        
+
     def move(self, direction, d=0):
         pos = get_pos_by_direction(self.pos, direction)
         if self.can_move(direction, d):
             self.board.get_upper(pos).move(direction)
             self.board.get_lower(self.pos).deactivate()
-            self.board.set_upper(self.pos, VoidElement(self.board, self.pos()))
+            self.board.set_upper(self.pos, VoidElement(self.board, self.pos))
             self.board.get_lower(pos).activate()
             self.board.set_upper(pos, self)
             self.pos = pos
@@ -114,19 +115,18 @@ class Wall(GameElement):
 
 class Finish(pygame.Surface):
     def __init__(self, board, pos=(0, 0)):
-        image = load_image(FINISH_IMG)
+        image = FINISH_IMG
         super(Finish, self).__init__(image.get_size(), pygame.SRCALPHA, 32)
         self.blit(image, (0, 0))
         self.board = board
         self.pos = pos
-        board.set_lower(pos, self)
         self.activated = False
 
     def activate(self):
         self.activated = True
 
     def deactivate(self):
-        self.activated = True
+        self.activated = False
 
     def draw(self, tick):
         self.board.blit(self, (self.pos[0] * self.board.cell_size, self.pos[1] * self.board.cell_size))
@@ -152,39 +152,32 @@ class Board(ScreenElement):
         super(Board, self).__init__(parent_screen, rect)
         self.level = level
         self.player = VoidElement(self)
-        self.map_upper = list()
-        self.map_lower = list()
+        self.width = len(self.level.get_map()[0])
+        self.height = len(self.level.get_map())
+        self.map_upper = [[None for j in range(self.height)] for i in range(self.width)]
+        self.map_lower = [[None for j in range(self.height)] for i in range(self.width)]
         self.finishes = list()
         self.cell_size = cell_size
         for j, row in enumerate(level.get_map()):
-            for i, element in enumerate(row):
-                if element == PLAYER:
-                    self.player = Player(self, (i, j))
-                if element == BOX:
-                    Box(self, (i, j))
-                if element == WALL:
-                    Wall(self, (i, j))
-                if element in (CELL, VOID):
-                    VoidElement(self, (i, j))
-                if element == FINISH:
-                    self.finishes.append(Finish(self, (i, j)))
-                else:
-                    VoidFinish(self, (i, j))
-        self.width = len(self.level.get_map())
-        self.height = len(self.level.get_map()[0])
+            for i, chr_element in enumerate(row):
+                upper_element = VoidElement(self, (i, j))
+                lower_element = VoidFinish(self, (i, j))
+                if chr_element == PLAYER:
+                    upper_element = self.player = Player(self, (i, j))
+                if chr_element == BOX:
+                    upper_element = Box(self, (i, j))
+                if chr_element == WALL:
+                    upper_element = Wall(self, (i, j))
+                if chr_element == FINISH:
+                    self.finishes.append(lower_element := Finish(self, (i, j)))
+                self.map_upper[i][j] = upper_element
+                self.map_lower[i][j] = lower_element
         self.going = True
 
-    def going_check(self, function):
-        def new_function(*args, **kwargs):
-            if not self.going:
-                return
-            all_finished_are_activated = True
-            for finish in self.finishes:
-                all_finished_are_activated = all_finished_are_activated and finish.activated
-            if all_finished_are_activated:
-                self.going = False
-            else:
-                function(*args, **kwargs)
+    def refresh_going(self):
+        self.going = False
+        for finish in self.finishes:
+            self.going = self.going or not finish.activated
 
     def get_upper(self, pos):
         return self.map_upper[pos[0]][pos[1]]
@@ -192,13 +185,13 @@ class Board(ScreenElement):
     def get_lower(self, pos):
         return self.map_lower[pos[0]][pos[1]]
 
-    @going_check
     def set_upper(self, pos, element: GameElement):
         self.map_upper[pos[0]][pos[1]] = element
+        self.refresh_going()
 
-    @going_check
     def set_lower(self, pos, element: GameElement):
         self.map_lower[pos[0]][pos[1]] = element
+        self.refresh_going()
 
     def get_width(self):
         return self.width
@@ -217,8 +210,11 @@ class Board(ScreenElement):
             if event.key == pygame.K_RIGHT:
                 self.player.move("r")
 
-    def draw(self, screen):
+    def draw(self, tick):
+        super(Board, self).draw(tick)
+        background = self.parent_screen.theme["background"]
         for i in range(self.width):
             for j in range(self.height):
-                self.map_lower[i][j].draw()
-                self.map_upper[i][j].draw()
+                self.map_lower[i][j].draw(tick)
+                self.map_upper[i][j].draw(tick)
+        self.parent_screen.blit(self, self.rect.topleft)

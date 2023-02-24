@@ -56,7 +56,11 @@ class Level:
         max_len = 0
 
         with open(filename, mode="r", encoding="utf-8") as file:
-            max_len = max(max_len, len(file.readline().strip()))
+            while True:
+                line = file.readline().strip()
+                if line == '':
+                    break
+                max_len = max(max_len, len(line))
 
         line = self.name
         with open(filename, mode="r", encoding="utf-8") as file:
