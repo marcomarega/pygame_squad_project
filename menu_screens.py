@@ -7,10 +7,11 @@ from UserInterfafce.screen import Screen
 from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea, EditText, ScreenKeeper, FeaturesLearning
 from UserInterfafce.style import Style
 from filework import FileBase
-from functions import terminate, hor_center
+from functions import terminate, hor_center, load_image
 from load import GAME_NAME
 from themes import night_theme, day_theme
 from game.elements import Board
+from UserInterfafce.background import Background
 
 # from datetime import datetime
 
@@ -121,15 +122,12 @@ class GameScreen(Screen):
             .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
                                                     GameScreen, self.save)))
         self.add_element(ScreenKeeper(self, Rect(250, 50, 500, 500), self.theme["screen_keeper_theme"])
-                         .set_current_screen(LevelMenuScreen, self.save))
+                         .set_current_screen(LevelMenuScreen, self.theme["screen_keeper_theme"], self.save))
 
     def saving(self):
-        for save in self.file_base.get_saves():
-            if save == self.save.get_name():
-                os.remove(os.getcwd() + '\\res\\save\\' + save + '.save')
-                self.file_base.del_save(save)
-                self.file_base.new_save(save)
-                break
+        os.remove(os.getcwd() + '\\res\\save\\' + self.save.name + '.save')
+        self.file_base.del_save(self.save.name)
+        self.file_base.new_save(self.save.name)
         self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)
 
 
@@ -148,7 +146,10 @@ class LevelMenuScreen(Screen):
                 button := Button(scroll_area, Rect(10, 10 + i * save_button_dh, 480, 50), level.get_name(),
                                  self.checking_passing_levels(level))
                 .add_args(self.file_base.level_base[i])
-                .connect(lambda level1: self.display.set_current_screen(LevelPlaying, self.save, level1))
+                .connect(lambda level1: self.display.set_current_screen(LevelPlaying,
+                                                                        self.display.get_parent_screen().theme[
+                                                                                "level_playing_theme"],
+                                                                        self.save, level1))
             )
             button.level_name = level
 
@@ -164,7 +165,15 @@ class LevelPlaying(Screen):
         self.level = level
         self.save = save
 
-        self.add_element(Board(self, screen.get_rect(), self.level, 25))
+        self.add_element(board := Board(self, Rect(190, 120, 500, 500), self.level, 25))
+        self.board = board
+        self.add_element(Button(self, Rect(340, 440, 150, 50), "Проверить")
+                         .connect(lambda: self.check()))
+
+    def check(self):
+        if not self.board.going:
+            self.display.set_current_screen(FinishScreen, self.display.get_parent_screen().theme["screen_keeper_theme"],
+                                            self.save, self.level)
 
 
 class FinishScreen(Screen):
@@ -174,8 +183,11 @@ class FinishScreen(Screen):
         self.save = save
 
         self.add_element(TextPlain(self, Rect(10, 10, 480, 50), "Вы победили", self.theme["header"]))
-        self.add_element(Button(self, Rect(175, 310, 150, 50), "Выбрать новый уровень")
-                         .connect(lambda: self.screen.set_current_screen(LevelMenuScreen, self.save)))
+        self.add_element(Button(self, Rect(175, 310, 200, 50), "Выбрать новый уровень")
+                         .connect(lambda: self.display.set_current_screen(LevelMenuScreen,
+                                                                          self.display.get_parent_screen().theme[
+                                                                              "screen_keeper_theme"],
+                                                                          self.save)))
         self.save.new_passed_level(self.level)
 
 
