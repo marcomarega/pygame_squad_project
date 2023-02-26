@@ -96,7 +96,7 @@ class SettingsScreen(Screen):
             self.add_element(
                 Button(self, Rect(10, 130, 150, 50), "Назад")
                 .connect(
-                    lambda: self.from_screen.screen_keeper1.push_event_to_parent_screen(BACKTOGAMESCREEN))
+                    lambda: self.display.push_event_to_parent_screen(BACKTOGAMESCREEN))
             )
         else:
             self.add_element(
@@ -114,8 +114,7 @@ class GameScreen(Screen):
                          .connect(lambda: self.saving()))
         self.add_element(
             Button(self, Rect(20, 130, 200, 50), "Перейти в меню настроек")
-            .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
-                                                    GameScreen, self.save)))
+            .connect(lambda: self.screen_keeper1.show()))
         self.add_element(ScreenKeeper(self, Rect(250, 50, 500, 500), self.theme["screen_keeper_theme"])
                          .set_current_screen(LevelMenuScreen, self.theme["screen_keeper_theme"], self.save))
         self.add_element(screen_keeper1 := ScreenKeeper(self, self.get_rect(), self.theme["screen_keeper_theme"])
@@ -126,6 +125,9 @@ class GameScreen(Screen):
         with open(self.save.filename, mode="w", encoding="utf-8") as file:
             file.write(" ".join(self.save.passed_levels))
         self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)
+
+    def get_screen_keeper1(self):
+        return self.screen_keeper1
 
     def push_event(self, event):
         if event.type == BACKTOGAMESCREEN:
