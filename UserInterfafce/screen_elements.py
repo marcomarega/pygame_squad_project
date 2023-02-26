@@ -255,6 +255,7 @@ class ScreenKeeper(ScreenElement):
         return self.parent_screen
 
     def draw(self, tick):
+        super(ScreenKeeper, self).draw(tick)
         self.current_screen.draw(tick)
         self.parent_screen.blit(self.current_screen, self.rect.topleft)
         return self
