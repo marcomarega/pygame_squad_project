@@ -71,7 +71,7 @@ class Button(ScreenElement):
         if self.extra_style is not None:
             style = self.extra_style
         else:
-            style = self.parent_screen.theme["button"]
+            style = self.parent_screen.theme.data["button"]
         d_color = style.d_color
         if style.background_color is not None:
             if self.is_pressed:
@@ -116,7 +116,7 @@ class TextPlain(ScreenElement):
         if self.extra_style is not None:
             style = self.extra_style
         else:
-            style = self.parent_screen.theme["text"]
+            style = self.parent_screen.theme.data["text"]
         font = pygame.font.Font(None, style.font_size)
         text = font.render(self.text, True, style.main_color)
         if style.background_color is not None:
@@ -168,7 +168,7 @@ class EditText(ScreenElement):
         if self.extra_style is not None:
             style = self.extra_style
         else:
-            style = self.parent_screen.theme["edit_text"]
+            style = self.parent_screen.theme.data["edit_text"]
         if self.selected:
             main_color = style.main_color
             background_color = style.background_color
@@ -236,8 +236,8 @@ class ScrollArea(ScreenElement):
     def draw(self, tick):
         if not super(ScrollArea, self).draw(tick):
             return False
-        if self.theme["scroll_area_background"] is not None:
-            self.blit(self.theme["scroll_area_background"], (0, 0))
+        if self.theme.data["scroll_area_background"] is not None:
+            self.blit(self.theme.data["scroll_area_background"], (0, 0))
         for element in self.elements:
             element.draw(tick)
         self.parent_screen.blit(self, self.rect.topleft)

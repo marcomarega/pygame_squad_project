@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from filework import FileBase
 from load import *
 from UserInterfafce.intention import Intent
@@ -7,7 +9,7 @@ if __name__ == "__main__":
     intent = Intent()
     file_base = FileBase("res")
     from themes import day_theme
-    cur_screen = MainMenuScreen(display, intent, file_base, day_theme)
+    cur_screen = MainMenuScreen(display, intent, file_base, Theme(day_theme.data))
 
     running = True
     while running:

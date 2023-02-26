@@ -212,7 +212,7 @@ class Board(ScreenElement):
 
     def draw(self, tick):
         super(Board, self).draw(tick)
-        background = self.parent_screen.theme["background"]
+        background = self.parent_screen.theme.data["background"]
         for i in range(self.width):
             for j in range(self.height):
                 self.map_lower[i][j].draw(tick)

@@ -13,8 +13,17 @@ class Style:
 
 
 class Theme:
-    def __init__(self, **styles):
-        self.styles = styles
+    def __init__(self, data=None, **styles):
+        if data is not None:
+            self.data = data
+            return
 
-    def __getitem__(self, item):
-        return self.styles[item]
+        class DataKeeper:
+            def __init__(self, styles):
+                self.styles = styles
+
+            def __getitem__(self, item):
+                return self.styles[item]
+
+        self.data = DataKeeper(styles)
+        self.data.styles = styles

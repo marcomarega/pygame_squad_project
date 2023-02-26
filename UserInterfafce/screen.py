@@ -13,7 +13,7 @@ class Screen(pygame.Surface):
         self.elements = list()
 
     def draw(self, tick):
-        self.blit(self.theme["background"], (0, 0))
+        self.blit(self.theme.data["background"], (0, 0))
         for element in self.elements:
             element.draw(tick)
         self.display.blit(self, (0, 0))
@@ -27,7 +27,7 @@ class Screen(pygame.Surface):
         self.elements.append(element)
 
     def set_theme(self, theme):
-        self.theme = theme
+        self.theme.data = theme.data
 
     def set_intent(self, intent: Intent):
         self.intent = intent
