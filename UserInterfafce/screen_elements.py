@@ -267,6 +267,9 @@ class ScreenKeeper(ScreenElement):
         self.current_screen.push_event(event)
         return self
 
+    def push_event_to_parent_screen(self, event):
+        self.parent_screen.push_event(event)
+
 
 class FeaturesLearning(ScreenElement):
     def __init__(self, parent_screen, rect, text: TextPlain, extra_theme=None):
