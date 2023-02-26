@@ -109,7 +109,7 @@ class SaveBase:
     def write(self, new_save):
         self.saves[new_save.name] = new_save
         with open(new_save.filename, mode="w", encoding="utf-8") as file:
-            file.write(" ".join(map(str, new_save.passed_levels)))
+            file.write(" ".join(new_save.passed_levels))
 
 
 class Save:
@@ -118,7 +118,7 @@ class Save:
         self.filename = filename
         try:
             with open(filename, mode="r", encoding="utf-8") as file:
-                self.passed_levels = list(map(int, (num for num in file.readline().strip().split(" ") if num.isdigit())))
+                self.passed_levels = file.readline().strip().split()
         except FileNotFoundError:
             self.passed_levels = list()
 
@@ -126,11 +126,11 @@ class Save:
         return self.passed_levels
 
     def new_passed_level(self, level):
-        if hash(level) not in self.passed_levels:
-            self.passed_levels.append(hash(level))
+        if level.name not in self.passed_levels:
+            self.passed_levels.append(level.name)
 
     def is_passed(self, level):
-        return hash(level) in self.passed_levels
+        return level.name in self.passed_levels
 
     def get_name(self):
         return self.name
