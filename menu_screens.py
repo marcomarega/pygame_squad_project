@@ -112,15 +112,15 @@ class GameScreen(Screen):
 
         self.add_element(Button(self, Rect(20, 50, 200, 50), "Сохранить и выйти")
                          .connect(lambda: self.saving()))
-        self.add_element(screen_keeper1 := ScreenKeeper(self, self.get_rect(), self.theme["screen_keeper_theme"])
-                         .set_current_screen(SettingsScreen, self.theme, GameScreen, self.save).hide())
-        self.screen_keeper1 = screen_keeper1
         self.add_element(
             Button(self, Rect(20, 130, 200, 50), "Перейти в меню настроек")
             .connect(lambda: self.intent.set_intent(SettingsScreen, self.file_base, self.theme,
                                                     GameScreen, self.save)))
         self.add_element(ScreenKeeper(self, Rect(250, 50, 500, 500), self.theme["screen_keeper_theme"])
                          .set_current_screen(LevelMenuScreen, self.theme["screen_keeper_theme"], self.save))
+        self.add_element(screen_keeper1 := ScreenKeeper(self, self.get_rect(), self.theme["screen_keeper_theme"])
+                         .set_current_screen(SettingsScreen, self.theme, GameScreen, self.save).hide())
+        self.screen_keeper1 = screen_keeper1
 
     def saving(self):
         with open(self.save.filename, mode="w", encoding="utf-8") as file:

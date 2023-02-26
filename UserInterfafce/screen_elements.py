@@ -33,9 +33,9 @@ class ScreenElement(pygame.Surface):
 
     def draw(self, tick):
         if not self.showing:
-            return
+            return False
         self.fill((0, 0, 0, 0))
-        return self
+        return True
 
 
 class Button(ScreenElement):
@@ -60,7 +60,8 @@ class Button(ScreenElement):
             return self
 
     def draw(self, tick):
-        super(Button, self).draw(tick)
+        if not super(Button, self).draw(tick):
+            return False
         if self.extra_style is not None:
             style = self.extra_style
         else:
@@ -78,7 +79,7 @@ class Button(ScreenElement):
         self.blit(text, ((self.get_width() - text.get_width()) // 2, (self.get_height() - text.get_height()) // 2))
         if self.showing:
             self.parent_screen.blit(self, (self.rect.x, self.rect.y))
-        return self
+        return True
 
     def add_args(self, *args):
         self.args.extend(args)
@@ -104,7 +105,8 @@ class TextPlain(ScreenElement):
         return self.text
 
     def draw(self, tick):
-        super(TextPlain, self).draw(tick)
+        if not super(TextPlain, self).draw(tick):
+            return False
         if self.extra_style is not None:
             style = self.extra_style
         else:
@@ -117,7 +119,7 @@ class TextPlain(ScreenElement):
                   ((self.get_width() - text.get_width()) // 2,
                    (self.get_height() - text.get_height()) // 2))
         self.parent_screen.blit(self, self.rect.topleft)
-        return self
+        return True
 
 
 class EditText(ScreenElement):
@@ -154,7 +156,8 @@ class EditText(ScreenElement):
         return self
 
     def draw(self, tick):
-        super(EditText, self).draw(tick)
+        if not super(EditText, self).draw(tick):
+            return False
         if self.extra_style is not None:
             style = self.extra_style
         else:
@@ -182,7 +185,7 @@ class EditText(ScreenElement):
         else:
             self.blit(text, (self.get_width() - text.get_width() - 6, 3))
         self.parent_screen.blit(self, self.rect.topleft)
-        return self
+        return True
 
 
 class ScrollArea(ScreenElement):
@@ -225,13 +228,14 @@ class ScrollArea(ScreenElement):
         return self
 
     def draw(self, tick):
-        super(ScrollArea, self).draw(tick)
+        if not super(ScrollArea, self).draw(tick):
+            return False
         if self.theme["scroll_area_background"] is not None:
             self.blit(self.theme["scroll_area_background"], (0, 0))
         for element in self.elements:
             element.draw(tick)
         self.parent_screen.blit(self, self.rect.topleft)
-        return self
+        return True
     
     
 class ScreenKeeper(ScreenElement):
@@ -255,10 +259,11 @@ class ScreenKeeper(ScreenElement):
         return self.parent_screen
 
     def draw(self, tick):
-        super(ScreenKeeper, self).draw(tick)
+        if not super(ScreenKeeper, self).draw(tick):
+            return False
         self.current_screen.draw(tick)
         self.parent_screen.blit(self.current_screen, self.rect.topleft)
-        return self
+        return True
 
     def push_event(self, event):
         if hasattr(event, "pos"):
@@ -299,10 +304,11 @@ class FeaturesLearning(ScreenElement):
         del self
 
     def draw(self, tick):
-        super(FeaturesLearning, self).draw(tick)
+        if not super(FeaturesLearning, self).draw(tick):
+            return False
         pygame.draw.rect(self.parent_screen, (255, 255, 255), self.rect)
         self.text.draw(tick)
         for btn in self.buttons:
             btn.draw(tick)
         self.parent_screen.blit(self, self.rect.topleft)
-        return self
+        return True
