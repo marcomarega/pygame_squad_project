@@ -19,8 +19,9 @@ class Screen(pygame.Surface):
         self.display.blit(self, (0, 0))
 
     def push_event(self, event):
-        for element in self.elements:
-            element.push_event(event)
+        for element in self.elements[::-1]:
+            if element.push_event(event):
+                return True
 
     def add_element(self, element):
         self.elements.append(element)

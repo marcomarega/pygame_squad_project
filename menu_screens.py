@@ -96,7 +96,8 @@ class SettingsScreen(Screen):
             self.add_element(
                 Button(self, Rect(10, 130, 150, 50), "Назад")
                 .connect(
-                    lambda: self.display.push_event_to_parent_screen(BACKTOGAMESCREEN))
+                    lambda: self.display.push_event_to_parent_screen(
+                        pygame.event.Event(BACKTOGAMESCREEN, theme=self.theme)))
             )
         else:
             self.add_element(
@@ -131,7 +132,8 @@ class GameScreen(Screen):
 
     def push_event(self, event):
         if event.type == BACKTOGAMESCREEN:
-            self.screen_keeper1.show()
+            self.screen_keeper1.hide()
+            self.theme = event.theme
         else:
             super().push_event(event)
 
@@ -198,7 +200,6 @@ class FinishScreen(Screen):
 class PauseMenuScreen(Screen):
     def __init__(self, screen, intent, file_base, theme):
         super(PauseMenuScreen, self).__init__(screen, intent, file_base, theme)
-
         self.add_element(Button(self, Rect(hor_center(screen.get_width(), 200), 215, 200, 50), "Сохранить и выйти")
                          .connect(lambda: self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)))
         self.add_element(

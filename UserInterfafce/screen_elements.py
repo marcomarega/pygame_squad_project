@@ -1,4 +1,5 @@
 import string
+from copy import deepcopy
 
 import pygame
 
@@ -29,7 +30,12 @@ class ScreenElement(pygame.Surface):
         return self
 
     def push_event(self, event):
-        return self
+        if not self.showing:
+            return False
+        return self.event_processing(pygame.event.Event(deepcopy(event.type), deepcopy(event.dict)))
+
+    def event_processing(self, event):
+        return False
 
     def draw(self, tick):
         if not self.showing:
@@ -47,21 +53,21 @@ class Button(ScreenElement):
         self.args = list()
         self.functions = list()
 
-    def push_event(self, event):
+    def event_processing(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_LEFT:
             if self.rect.collidepoint(*event.pos):
                 self.is_pressed = True
+                return True
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == pygame.BUTTON_LEFT:
             if self.is_pressed and self.rect.collidepoint(*event.pos):
                 for func in self.functions:
                     func(*self.args)
+                self.is_pressed = False
+                return True
             self.is_pressed = False
-            return self
 
     def draw(self, tick):
-        if not super(Button, self).draw(tick):
-            return False
         if self.extra_style is not None:
             style = self.extra_style
         else:
@@ -140,9 +146,10 @@ class EditText(ScreenElement):
     def get_text(self):
         return self.text
 
-    def push_event(self, event):
+    def event_processing(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
             self.selected = True
+            return True
         if event.type == pygame.MOUSEBUTTONDOWN and not self.rect.collidepoint(event.pos):
             self.selected = False
         if self.selected and event.type == pygame.KEYDOWN:
@@ -153,7 +160,7 @@ class EditText(ScreenElement):
                 self.text = self.text[0:-1]
             elif event.unicode.upper() in string.ascii_letters:
                 self.text += event.unicode.upper()
-        return self
+            return True
 
     def draw(self, tick):
         if not super(EditText, self).draw(tick):
@@ -204,7 +211,7 @@ class ScrollArea(ScreenElement):
         self.lower_y = max(self.lower_y, element.rect.bottom)
         return self
 
-    def push_event(self, event):
+    def event_processing(self, event):
         if event.type == pygame.MOUSEWHEEL and self.rect.collidepoint(*pygame.mouse.get_pos()):
             self.dy += event.y * SCROLL_SHIFT
             if self.dy > 0:
@@ -225,7 +232,6 @@ class ScrollArea(ScreenElement):
             event.pos = (event.pos[0] - self.rect.x, event.pos[1] - self.rect.y)
         for element in self.elements:
             element.push_event(event)
-        return self
 
     def draw(self, tick):
         if not super(ScrollArea, self).draw(tick):
@@ -265,50 +271,49 @@ class ScreenKeeper(ScreenElement):
         self.parent_screen.blit(self.current_screen, self.rect.topleft)
         return True
 
-    def push_event(self, event):
+    def event_processing(self, event):
         if hasattr(event, "pos"):
             event.pos = (event.pos[0] - self.rect.x, event.pos[1] - self.rect.y)
         if self.current_screen is None:
             return self
-        self.current_screen.push_event(event)
-        return self
+        return self.current_screen.push_event(event)
 
     def push_event_to_parent_screen(self, event):
         self.parent_screen.push_event(event)
 
 
-class FeaturesLearning(ScreenElement):
-    def __init__(self, parent_screen, rect, text: TextPlain, extra_theme=None):
-        super(FeaturesLearning, self).__init__(parent_screen, rect, None)
-        if extra_theme is None:
-            self.theme = self.parent_screen.theme
-        else:
-            self.theme = extra_theme
-        self.text = text
-        self.buttons = []
-        self.closing_buttons = {'No': 0, 'Close': 1, 'Got it!': -1}
-
-    def add_element(self, element):
-        self.buttons.append(element)
-
-    def push_event(self, event):
-        for btn in self.buttons:
-            if event.type == pygame.MOUSEBUTTONDOWN and btn.collidepoint(*pygame.mouse.get_pos()):
-                if btn.get_text() in self.closing_buttons:
-                    self.close()
-                else:
-                    btn.push_event()
-                    break
-
-    def close(self):
-        del self
-
-    def draw(self, tick):
-        if not super(FeaturesLearning, self).draw(tick):
-            return False
-        pygame.draw.rect(self.parent_screen, (255, 255, 255), self.rect)
-        self.text.draw(tick)
-        for btn in self.buttons:
-            btn.draw(tick)
-        self.parent_screen.blit(self, self.rect.topleft)
-        return True
+# class FeaturesLearning(ScreenElement):
+#     def __init__(self, parent_screen, rect, text: TextPlain, extra_theme=None):
+#         super(FeaturesLearning, self).__init__(parent_screen, rect, None)
+#         if extra_theme is None:
+#             self.theme = self.parent_screen.theme
+#         else:
+#             self.theme = extra_theme
+#         self.text = text
+#         self.buttons = []
+#         self.closing_buttons = {'No': 0, 'Close': 1, 'Got it!': -1}
+#
+#     def add_element(self, element):
+#         self.buttons.append(element)
+#
+#     def event_processing(self, event):
+#         for btn in self.buttons:
+#             if event.type == pygame.MOUSEBUTTONDOWN and btn.collidepoint(*pygame.mouse.get_pos()):
+#                 if btn.get_text() in self.closing_buttons:
+#                     self.close()
+#                 else:
+#                     btn.push_event()
+#                     break
+#
+#     def close(self):
+#         del self
+#
+#     def draw(self, tick):
+#         if not super(FeaturesLearning, self).draw(tick):
+#             return False
+#         pygame.draw.rect(self.parent_screen, (255, 255, 255), self.rect)
+#         self.text.draw(tick)
+#         for btn in self.buttons:
+#             btn.draw(tick)
+#         self.parent_screen.blit(self, self.rect.topleft)
+#         return True
