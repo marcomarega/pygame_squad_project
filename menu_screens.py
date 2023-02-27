@@ -79,6 +79,7 @@ class SettingsScreen(Screen):
         super(SettingsScreen, self).__init__(display, intent, file_base, theme)
         self.from_screen = from_screen
         self.from_save = from_save
+        self.music_is_paused = False
 
         self.add_element(TextPlain(self, Rect(10, 10, 150, 50), "Параметры"))
         self.add_element(
@@ -91,18 +92,46 @@ class SettingsScreen(Screen):
                    Style("black", "white", 50, self.theme.data["text"].font_size))
             .connect(lambda: self.set_theme(day_theme))
         )
+        self.add_element(
+            Button(self, Rect(10, 130, 150, 50), "Звук++")
+            .connect(
+                lambda: music_controller.volume_change(True)
+            )
+        )
+        self.add_element(
+            Button(self, Rect(170, 130, 150, 50), "Звук--")
+            .connect(
+                lambda: music_controller.volume_change(False)
+            )
+        )
+        self.add_element(
+            music_pause_button := Button(self, Rect(330, 130, 150, 50),
+                                         "Включить звук" if music_controller.is_on_pause else "Без звука")
+            .connect(
+                self.music_pause
+            )
+        )
+        self.music_pause_button = music_pause_button
         if self.from_screen == GameScreen:
             self.add_element(
-                Button(self, Rect(10, 130, 150, 50), "Назад")
+                Button(self, Rect(10, 190, 150, 50), "Назад")
                 .connect(
                     lambda: self.display.push_event_to_parent_screen(
                         pygame.event.Event(BACKTOGAMESCREEN, theme=self.theme)))
             )
         else:
             self.add_element(
-                Button(self, Rect(10, 130, 150, 50), "Назад")
+                Button(self, Rect(10, 190, 150, 50), "Назад")
                 .connect(lambda: self.intent.set_intent(self.from_screen, self.file_base, self.theme, False))
             )
+
+    def music_pause(self):
+        if not music_controller.is_on_pause:
+            music_controller.music_pause()
+            self.music_pause_button.set_text("Включить звук")
+        else:
+            music_controller.music_resume()
+            self.music_pause_button.set_text("Без звука")
 
 
 class GameScreen(Screen):

@@ -102,6 +102,9 @@ class Button(ScreenElement):
     def get_text(self):
         return self.text
 
+    def set_text(self, new_text):
+        self.text = new_text
+
 
 class TextPlain(ScreenElement):
     def __init__(self, parent_screen: Screen, rect: pygame.Rect, text, extra_style=None):
@@ -130,6 +133,12 @@ class TextPlain(ScreenElement):
                    (self.get_height() - text.get_height()) // 2))
         self.parent_screen.blit(self, self.rect.topleft)
         return True
+
+    def get_text(self):
+        return self.text
+
+    def set_text(self, new_text):
+        self.text = new_text
 
 
 class EditText(ScreenElement):
@@ -197,6 +206,9 @@ class EditText(ScreenElement):
             self.blit(text, (self.get_width() - text.get_width() - 6, 3))
         self.parent_screen.blit(self, self.rect.topleft)
         return True
+
+    def set_text(self, new_text):
+        self.text = new_text
 
 
 class ScrollArea(ScreenElement):
