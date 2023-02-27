@@ -3,7 +3,7 @@ import pygame
 pygame.init()
 FPS = 60
 clock = pygame.time.Clock()
-SIZE = WIDTH, HEIGHT = 800, 600
+SIZE = WIDTH, HEIGHT = 1200, 700
 display = pygame.display.set_mode(SIZE)
 from themes import *
 

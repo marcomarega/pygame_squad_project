@@ -13,10 +13,15 @@ FINISH = "0"
 CELL = "."
 VOID = " "
 
-PLAYER_IMG = load_image("res\\image\\player.png")
-BOX_IMG = load_image("res\\image\\box.png")
-WALL_IMGS = [load_image("res\\image\\wall1.png"), load_image("res\\image\\wall2.png")]
-FINISH_IMG = load_image("res\\image\\finish.png")
+PLAYER_IMG_SRC = load_image("res\\image\\player.png")
+BOX_IMG_SRC = load_image("res\\image\\box.png")
+WALL_IMGS_SRC = [load_image("res\\image\\wall1.png"), load_image("res\\image\\wall2.png")]
+FINISH_IMG_SRC = load_image("res\\image\\finish.png")
+
+PLAYER_IMG = PLAYER_IMG_SRC
+BOX_IMG = BOX_IMG_SRC
+WALL_IMGS = WALL_IMGS_SRC
+FINISH_IMG = FINISH_IMG_SRC
 
 
 def get_pos_by_direction(pos0, direction):
@@ -148,7 +153,8 @@ class VoidFinish(pygame.Surface):
 
 
 class Board(ScreenElement):
-    def __init__(self, parent_screen, rect, level: Level, cell_size):
+    def __init__(self, parent_screen, rect, level: Level):
+        global PLAYER_IMG, BOX_IMG, WALL_IMGS, FINISH_IMG
         super(Board, self).__init__(parent_screen, rect)
         self.level = level
         self.player = VoidElement(self)
@@ -157,7 +163,11 @@ class Board(ScreenElement):
         self.map_upper = [[None for j in range(self.height)] for i in range(self.width)]
         self.map_lower = [[None for j in range(self.height)] for i in range(self.width)]
         self.finishes = list()
-        self.cell_size = cell_size
+        self.cell_size = min(self.rect.width, self.rect.height) // max(self.width, self.height)
+        PLAYER_IMG = pygame.transform.scale(PLAYER_IMG_SRC, (self.cell_size, self.cell_size))
+        BOX_IMG = pygame.transform.scale(BOX_IMG_SRC, (self.cell_size, self.cell_size))
+        WALL_IMGS = [pygame.transform.scale(WALL_IMG_SRC, (self.cell_size, self.cell_size)) for WALL_IMG_SRC in WALL_IMGS_SRC]
+        FINISH_IMG = pygame.transform.scale(FINISH_IMG_SRC, (self.cell_size, self.cell_size))
         for j, row in enumerate(level.get_map()):
             for i, chr_element in enumerate(row):
                 upper_element = VoidElement(self, (i, j))
@@ -211,10 +221,11 @@ class Board(ScreenElement):
                 self.player.move("r")
 
     def draw(self, tick):
-        super(Board, self).draw(tick)
-        background = self.parent_screen.theme.data["background"]
+        if not super(Board, self).draw(tick):
+            return False
         for i in range(self.width):
             for j in range(self.height):
                 self.map_lower[i][j].draw(tick)
                 self.map_upper[i][j].draw(tick)
         self.parent_screen.blit(self, self.rect.topleft)
+        return True

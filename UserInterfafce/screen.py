@@ -10,9 +10,11 @@ class Screen(pygame.Surface):
         self.intent = intent
         self.file_base = file_base
         self.theme = theme
+        self.theme_src = theme
         self.elements = list()
 
     def draw(self, tick):
+        self.fill((0, 0, 0, 0))
         self.blit(self.theme.data["background"], (0, 0))
         for element in self.elements:
             element.draw(tick)

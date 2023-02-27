@@ -2,6 +2,15 @@ import os
 
 from load import SAVE_EXT, LEVEL_EXT
 
+def str_hash(line: str)->int:
+    chr_mod = 587
+    result = 0
+    cur = 1
+    for char in line:
+        result += cur * ord(char)
+        cur *= chr_mod
+    return result
+
 
 class FileBase:
     def __init__(self, directory):
@@ -62,17 +71,18 @@ class Level:
                     break
                 max_len = max(max_len, len(line))
 
-        line = self.name
+        hash_line = self.name
         with open(filename, mode="r", encoding="utf-8") as file:
             for line in file.readlines():
                 row = list()
                 for cell in line.strip():
-                    line += cell
+                    hash_line += cell
                     row.append(cell)
                 if len(row) < max_len:
                     row.extend((" " for _ in range(max_len - len(row))))
                 self.map.append(row)
-        self.hash = hash(line)
+        self.hash = str_hash(hash_line)
+        print()
 
     def get_name(self):
         return self.name
@@ -109,7 +119,7 @@ class SaveBase:
     def write(self, new_save):
         self.saves[new_save.name] = new_save
         with open(new_save.filename, mode="w", encoding="utf-8") as file:
-            file.write(" ".join(new_save.passed_levels))
+            file.write(" ".join(map(str, new_save.passed_levels)))
 
 
 class Save:
@@ -118,7 +128,8 @@ class Save:
         self.filename = filename
         try:
             with open(filename, mode="r", encoding="utf-8") as file:
-                self.passed_levels = file.readline().strip().split()
+                self.passed_levels = list(map(int, file.readline().strip().split()))
+                print()
         except FileNotFoundError:
             self.passed_levels = list()
 
@@ -127,10 +138,10 @@ class Save:
 
     def new_passed_level(self, level):
         if level.name not in self.passed_levels:
-            self.passed_levels.append(level.name)
+            self.passed_levels.append(hash(level))
 
     def is_passed(self, level):
-        return level.name in self.passed_levels
+        return hash(level) in self.passed_levels
 
     def get_name(self):
         return self.name
