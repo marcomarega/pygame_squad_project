@@ -1,9 +1,6 @@
 import sys
 import os
 import pygame
-from pprint import pprint
-
-from load import WIDTH
 
 
 def load_image(fullname, colorkey=None):
