@@ -143,8 +143,12 @@ class GameScreen(Screen):
         self.add_element(Button(self, Rect(20, 50, 200, 50), "Сохранить и выйти")
                          .connect(lambda: self.saving()))
         self.add_element(
-            Button(self, Rect(20, 130, 200, 50), "Перейти в меню настроек")
+            Button(self, Rect(20, 130, 200, 50), "Настройки")
             .connect(lambda: self.screen_keeper1.show()))
+        self.add_element(
+            TextPlain(self, Rect(700, 30, 400, 50), "esc - вернуться в меню уровней",
+                      extra_style=Style("white", (0, 0, 0, 0), 30, 35))
+        )
         self.add_element(ScreenKeeper(self, Rect(700, 100, 400, 400))
                          .set_current_screen(LevelMenuScreen, theme, self.save))
         self.add_element(screen_keeper1 := ScreenKeeper(self, self.get_rect())

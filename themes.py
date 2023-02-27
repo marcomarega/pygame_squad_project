@@ -24,7 +24,7 @@ night_theme = Theme(
         scroll_area_background=Background(color=(60, 50, 50, 130))
     ),
     game_screen_theme=Theme(
-        background=pygame.transform.scale(Background("res\\image\\biru.jpg"), SIZE),
+        background=pygame.transform.scale(Background("res\\image\\biru_night.png"), SIZE),
         button=Style((255, 255, 255), (60, 50, 50), 30, 20),
         text=Style((0, 0, 0), None, 30, 20),
         header=Style((255, 255, 255), None, 30, 50),
@@ -53,7 +53,7 @@ day_theme = Theme(
         scroll_area_background=Background(color=(200, 225, 225, 130))
     ),
     game_screen_theme=Theme(
-        background=pygame.transform.scale(Background("res\\image\\biru.jpg"), SIZE),
+        background=pygame.transform.scale(Background("res\\image\\biru_day.png"), SIZE),
         button=Style((0, 0, 0), (200, 225, 225), 30, 20),
         text=Style((0, 0, 0), None, 30, 20),
         header=Style((0, 0, 0), None, 30, 50),
