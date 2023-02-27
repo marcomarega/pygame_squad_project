@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from filework import FileBase
 from load import *
 from UserInterfafce.intention import Intent

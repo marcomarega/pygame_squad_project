@@ -43,6 +43,10 @@ class ScreenElement(pygame.Surface):
         self.fill((0, 0, 0, 0))
         return True
 
+    def get_mouse_pos(self):
+        pos = self.parent_screen.get_mouse_pos()
+        return pos[0] - self.rect.x, pos[1] - self.rect.y
+
 
 class Button(ScreenElement):
     def __init__(self, parent_screen: Screen, rect: pygame.Rect, text="", extra_style=None):
@@ -212,7 +216,7 @@ class ScrollArea(ScreenElement):
         return self
 
     def event_processing(self, event):
-        if event.type == pygame.MOUSEWHEEL and self.rect.collidepoint(*pygame.mouse.get_pos()):
+        if event.type == pygame.MOUSEWHEEL and self.rect.collidepoint(self.parent_screen.get_mouse_pos()):
             self.dy += event.y * SCROLL_SHIFT
             if self.dy > 0:
                 for element in self.elements:

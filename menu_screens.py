@@ -169,7 +169,10 @@ class LevelMenuScreen(Screen):
         if self.save.is_passed(level):
             return Style((255, 255, 255), (0, 255, 0), 30, 20)
         return Style((255, 255, 255), (255, 0, 0), 30, 20)
-
+    
+    def push_event(self, event):
+        super(LevelMenuScreen, self).push_event(event)
+            
 
 class LevelPlaying(Screen):
     def __init__(self, screen, intent, file_base, theme, save, level):
@@ -185,6 +188,8 @@ class LevelPlaying(Screen):
         super(LevelPlaying, self).draw(tick)
 
     def push_event(self, event):
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            self.display.set_current_screen(LevelMenuScreen, self.theme_src, self.save)
         super().push_event(event)
         if not self.board.going:
             self.display.set_current_screen(FinishScreen, self.theme_src,

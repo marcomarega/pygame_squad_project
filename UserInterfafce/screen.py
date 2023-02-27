@@ -1,6 +1,7 @@
 import pygame
 
 from UserInterfafce.intention import Intent
+from load import display
 
 
 class Screen(pygame.Surface):
@@ -33,3 +34,8 @@ class Screen(pygame.Surface):
 
     def set_intent(self, intent: Intent):
         self.intent = intent
+
+    def get_mouse_pos(self):
+        if self.display == display:
+            return pygame.mouse.get_pos()
+        return self.display.get_mouse_pos()
