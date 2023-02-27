@@ -6,15 +6,16 @@ from UserInterfafce.screen_elements import Button, TextPlain, ScrollArea, EditTe
 from UserInterfafce.style import Style
 from filework import FileBase
 from functions import terminate, hor_center
-from load import GAME_NAME, BACKTOGAMESCREEN
+from load import GAME_NAME, BACKTOGAMESCREEN, music_controller
 from themes import night_theme, day_theme
 from game.elements import Board
 
 
 class MainMenuScreen(Screen):
-    def __init__(self, display, intent, file_base, theme):
+    def __init__(self, display, intent, file_base, theme, restart_music=True):
         super(MainMenuScreen, self).__init__(display, intent, file_base, theme)
-
+        if restart_music:
+            music_controller.main_menu_music_on()
         self.add_element(TextPlain(self, Rect(10, 10, 300, 50), GAME_NAME, self.theme.data["header"]))
         self.add_element(Button(self, Rect(10, 70, 150, 50), "Новая игра")
                          .connect(lambda: self.intent.set_intent(NewGameScreen, self.file_base, self.theme)))
@@ -41,7 +42,7 @@ class NewGameScreen(Screen):
         )
 
         self.add_element(Button(self, Rect(10, 530, 150, 50), "Назад")
-                         .connect(lambda: self.intent.set_intent(MainMenuScreen, self.file_base, self.theme)))
+                         .connect(lambda: self.intent.set_intent(MainMenuScreen, self.file_base, self.theme, False)))
 
     def start_new_game(self, name):
         if name.strip() == "":
@@ -69,7 +70,7 @@ class ChoiceSaveScreen(Screen):
 
         self.add_element(
             Button(self, Rect(10, scroll_area.rect.height + 20, 150, 50), "Назад")
-            .connect(lambda: self.intent.set_intent(MainMenuScreen, self.file_base, self.theme))
+            .connect(lambda: self.intent.set_intent(MainMenuScreen, self.file_base, self.theme, False))
         )
 
 
@@ -100,13 +101,14 @@ class SettingsScreen(Screen):
         else:
             self.add_element(
                 Button(self, Rect(10, 130, 150, 50), "Назад")
-                .connect(lambda: self.intent.set_intent(self.from_screen, self.file_base, self.theme))
+                .connect(lambda: self.intent.set_intent(self.from_screen, self.file_base, self.theme, False))
             )
 
 
 class GameScreen(Screen):
     def __init__(self, display, intent, file_base, theme, save):
         super(GameScreen, self).__init__(display, intent, file_base, theme)
+        music_controller.game_music_on()
         self.save = save
 
         self.add_element(Button(self, Rect(20, 50, 200, 50), "Сохранить и выйти")

@@ -1,5 +1,7 @@
 import pygame
 
+from music import MusicController
+
 pygame.init()
 FPS = 60
 clock = pygame.time.Clock()
@@ -13,3 +15,5 @@ GAME_NAME = "BOXSCRAPPER"
 LEVEL_EXT = ".lvl"
 SAVE_EXT = ".save"
 BACKTOGAMESCREEN = pygame.USEREVENT + 1
+
+music_controller = MusicController("res\\music\\Snap! - The Power (dizer.net).mp3", "res\\music\\Herbie Hancock - Rockit (dizer.net).mp3")

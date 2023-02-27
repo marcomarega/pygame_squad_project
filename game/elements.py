@@ -13,12 +13,18 @@ FINISH = "0"
 CELL = "."
 VOID = " "
 
-PLAYER_IMG_SRC = load_image("res\\image\\player.png")
+LOADER_DOWN_SRC = load_image("res\\image\\loader_down.png")
+LOADER_UP_SRC = load_image("res\\image\\loader_up.png")
+LOADER_LEFT_SRC = load_image("res\\image\\loader_left.png")
+LOADER_RIGHT_SRC = load_image("res\\image\\loader_right.png")
 BOX_IMG_SRC = load_image("res\\image\\box.png")
-WALL_IMGS_SRC = [load_image("res\\image\\wall1.png"), load_image("res\\image\\wall2.png")]
+WALL_IMGS_SRC = [load_image("res\\image\\wall1.png"), ]
 FINISH_IMG_SRC = load_image("res\\image\\finish.png")
 
-PLAYER_IMG = PLAYER_IMG_SRC
+LOADER_DOWN_IMG = LOADER_DOWN_SRC
+LOADER_UP_IMG = LOADER_UP_SRC
+LOADER_LEFT_IMG = LOADER_LEFT_SRC
+LOADER_RIGHT_IMG = LOADER_RIGHT_SRC
 BOX_IMG = BOX_IMG_SRC
 WALL_IMGS = WALL_IMGS_SRC
 FINISH_IMG = FINISH_IMG_SRC
@@ -40,7 +46,7 @@ def get_pos_by_direction(pos0, direction):
 class GameElement(pygame.Surface):
     def __init__(self, image, board, pos=(0, 0)):
         super(GameElement, self).__init__(image.get_size(), pygame.SRCALPHA, 32)
-        self.blit(image, (0, 0))
+        self.image = image
         self.board = board
         self.pos = pos
 
@@ -55,6 +61,8 @@ class GameElement(pygame.Surface):
         return 0 <= pos[0] < self.board.get_width() and 0 <= pos[1] < self.board.get_height()
 
     def draw(self, tick):
+        self.fill((0, 0, 0, 0))
+        self.blit(self.image, (0, 0))
         self.board.blit(self, (self.pos[0] * self.board.cell_size, self.pos[1] * self.board.cell_size))
 
 
@@ -68,11 +76,19 @@ class VoidElement(GameElement):
 
 class Player(GameElement):
     def __init__(self, board, pos=(0, 0)):
-        super(Player, self).__init__(PLAYER_IMG, board, pos)
+        super(Player, self).__init__(LOADER_DOWN_IMG, board, pos)
 
     def move(self, direction, d=0):
         if not self.board.going:
             return
+        if direction == "u":
+            self.image = LOADER_UP_IMG
+        if direction == "d":
+            self.image = LOADER_DOWN_IMG
+        if direction == "l":
+            self.image = LOADER_LEFT_IMG
+        if direction == "r":
+            self.image = LOADER_RIGHT_IMG
         pos = get_pos_by_direction(self.pos, direction)
         if self.can_move(direction, d):
             self.board.get_upper(pos).move(direction)
@@ -154,7 +170,7 @@ class VoidFinish(pygame.Surface):
 
 class Board(ScreenElement):
     def __init__(self, parent_screen, rect, level: Level):
-        global PLAYER_IMG, BOX_IMG, WALL_IMGS, FINISH_IMG
+        global LOADER_DOWN_IMG, LOADER_UP_IMG, LOADER_LEFT_IMG, LOADER_RIGHT_IMG, BOX_IMG, WALL_IMGS, FINISH_IMG
         super(Board, self).__init__(parent_screen, rect)
         self.level = level
         self.player = VoidElement(self)
@@ -164,7 +180,10 @@ class Board(ScreenElement):
         self.map_lower = [[None for j in range(self.height)] for i in range(self.width)]
         self.finishes = list()
         self.cell_size = min(self.rect.width, self.rect.height) // max(self.width, self.height)
-        PLAYER_IMG = pygame.transform.scale(PLAYER_IMG_SRC, (self.cell_size, self.cell_size))
+        LOADER_DOWN_IMG = pygame.transform.scale(LOADER_DOWN_SRC, (self.cell_size, self.cell_size))
+        LOADER_UP_IMG = pygame.transform.scale(LOADER_UP_SRC, (self.cell_size, self.cell_size))
+        LOADER_LEFT_IMG = pygame.transform.scale(LOADER_LEFT_SRC, (self.cell_size, self.cell_size))
+        LOADER_RIGHT_IMG = pygame.transform.scale(LOADER_RIGHT_SRC, (self.cell_size, self.cell_size))
         BOX_IMG = pygame.transform.scale(BOX_IMG_SRC, (self.cell_size, self.cell_size))
         WALL_IMGS = [pygame.transform.scale(WALL_IMG_SRC, (self.cell_size, self.cell_size)) for WALL_IMG_SRC in WALL_IMGS_SRC]
         FINISH_IMG = pygame.transform.scale(FINISH_IMG_SRC, (self.cell_size, self.cell_size))
@@ -225,7 +244,7 @@ class Board(ScreenElement):
             return False
         for i in range(self.width):
             for j in range(self.height):
-                self.map_lower[i][j].draw(tick)
                 self.map_upper[i][j].draw(tick)
+                self.map_lower[i][j].draw(tick)
         self.parent_screen.blit(self, self.rect.topleft)
         return True
