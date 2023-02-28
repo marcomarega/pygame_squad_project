@@ -43,6 +43,7 @@ class LevelBase:
         for filename in os.listdir(directory):
             if filename.endswith(LEVEL_EXT):
                 self.levels.append(Level(filename[0:-len(LEVEL_EXT)], directory + "\\" + filename))
+        self.levels = sorted(self.levels, key=lambda x: x.name)
 
     def get_levels(self):
         return self.levels
